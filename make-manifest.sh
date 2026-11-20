@@ -1,5 +1,5 @@
 #!/bin/bash
-# Builds cache.appcache from the files Starry Break actually needs.
+# Builds cache.appcache from the files the page actually needs.
 #
 # Why a manifest at all: the PS4 browser caches aggressively and there is no
 # way to set HTTP headers when the page is served from GitHub Pages. HTML5
@@ -15,11 +15,8 @@
 # Run this after changing any file below, and commit the result.
 set -e
 cd "$(dirname "$0")"
-
 OUT=cache.appcache
-FILES="index.html jb.html style.css launch.js img/logo.jpg img/bg.jpg
-       jb.js core.js mem.js int64.js ps4_offsets.js afterglow.js goldhen.bin
-       patchset-1200.bin patchset-1202.bin patchset-1250.bin patchset-1252.bin patchset-1300.bin"
+FILES="index.html jb.html style.css launch.js jb.js core.js mem.js int64.js ps4_offsets.js afterglow.js patchset-1200.bin goldhen.bin"
 
 {
   echo "CACHE MANIFEST"
@@ -31,11 +28,17 @@ FILES="index.html jb.html style.css launch.js img/logo.jpg img/bg.jpg
     printf '%s #%s\n' "$f" "$(sha256sum "$f" | cut -c1-32)"
   done
   echo
+  # The run page is reached as jb.html?mode=... or jb.html?payload=..., and
+  # the cache matches URLs INCLUDING the query string -- so neither of those
+  # is the cached `jb.html`. Online they slip in as master entries, which is
+  # why whichever payload was picked last keeps working offline and the other
+  # one does not. The fallback serves the cached page for any jb.html?... the
+  # cache has not seen; location keeps the query, so the page still reads its
+  # own parameters.
   echo "FALLBACK:"
   echo "jb.html jb.html"
   echo
   echo "NETWORK:"
   echo "*"
 } > "$OUT"
-
 echo "$OUT: $(grep -cE '^[^#[:space:]]+ #' "$OUT") entries, $(wc -c < "$OUT") bytes"

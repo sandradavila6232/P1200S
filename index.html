@@ -1,138 +1,438 @@
 <!doctype html>
-<html class="landing" dir="rtl" lang="ar">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Starry Break</title>
-    <!-- خطوط جوجل العربية للواجهة والعناوين الفنية -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <!-- طبقة تعتيم الخلفية لضمان القراءة والتباين العالي -->
-    <div class="bg-overlay"></div>
+<html class="landing" lang="en" manifest="cache.appcache">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>JAILBREAK PS4</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;overflow-x:hidden;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#06060e;color:#e0e0e0}
 
-    <div class="site-container">
-      <!-- الشعار العلوي والعناوين -->
-      <header class="header">
-        <div class="logo-container">
-          <img src="img/logo.jpg" alt="Starry Break Logo" class="anime-logo" />
-        </div>
-        <h1 class="main-title">Starry Break</h1>
-        <p class="subtitle">PS4 Jailbreak</p>
-      </header>
+    .bg{position:fixed;inset:0;z-index:0;
+      background:
+        radial-gradient(ellipse at 20% 50%,rgba(59,130,246,.12) 0%,transparent 50%),
+        radial-gradient(ellipse at 80% 20%,rgba(16,185,129,.08) 0%,transparent 50%),
+        radial-gradient(ellipse at 50% 80%,rgba(59,130,246,.06) 0%,transparent 50%),
+        #06060e;
+      animation:bgDrift 14s ease-in-out infinite alternate}
+    @keyframes bgDrift{
+      0%{background-position:0% 0%,100% 0%,50% 100%}
+      100%{background-position:30% 20%,70% 40%,20% 60%}}
 
-      <!-- منطقة التفاعل المركزية -->
-      <main class="main-panel">
-        <!-- عداد تنازلي دائري (5 ثوانٍ) -->
-        <div id="countdownBox" class="countdown-box">
-          <div class="svg-timer-wrap">
-            <svg class="timer-svg" viewBox="0 0 160 160">
-              <circle class="timer-bg-circle" cx="80" cy="80" r="68"></circle>
-              <circle id="timerCircle" class="timer-progress-circle" cx="80" cy="80" r="68"></circle>
-            </svg>
-            <div id="timerNum" class="timer-arabic-num">٥</div>
-          </div>
-          <p id="timerLabel" class="timer-label">جاري التجهيز...</p>
-          <p id="cacheStatus" class="cache-status" aria-live="polite"></p>
-        </div>
+    .scanlines{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.3;
+      background:repeating-linear-gradient(0deg,transparent 0px,transparent 3px,rgba(0,0,0,.04) 3px,rgba(0,0,0,.04) 4px)}
 
-        <!-- مرحلة ما بعد انتهاء العداد وزر التشغيل والتحميل التلقائي -->
-        <div id="readyBox" class="ready-box">
-          <h2 class="anime-phrase">لا حدود... استمتع</h2>
-          <button id="startBtn" class="cyber-btn" type="button">
-            <span class="cyber-btn-cut"></span>
-            <span class="cyber-btn-text">ابدأ الآن</span>
-          </button>
-          <p id="autoNotice" class="auto-notice">ان لم تقم بالضغط سيتم التحميل تلقائياً بعد <span id="countdownNum">1</span> ثوانٍ......</p>
-        </div>
+    #brand{text-align:center;padding:1.2rem 1rem .4rem;position:relative;z-index:2}
+    #brand b{font-size:1.1rem;letter-spacing:.06em;
+      background:linear-gradient(90deg,#60a5fa,#22d3ee,#60a5fa);
+      background-size:200% auto;
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      background-clip:text;
+      animation:shimmer 4s linear infinite}
+    @keyframes shimmer{to{background-position:200% center}}
 
-        <!-- محدد الحمولات بطابع المونوكروم الأحادي -->
-        <div class="payload-selector" id="payloadSelector">
-          <span class="payload-label">الحمولة:</span>
-          <label class="payload-opt">
-            <input type="radio" name="payload" value="goldhen" checked />
-            <span class="payload-pill">GoldHEN</span>
-          </label>
-          <!-- <label class="payload-opt"> -->
-            <!-- <input type="radio" name="payload" value="hen" /> -->
-            <!-- <span class="payload-pill">PS4-HEN</span> -->
-          <!-- </label> -->
-        </div>
-      </main>
+    .card{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;
+      min-height:calc(100vh - 100px);padding:1.5rem 1.8rem 2rem;
+      background:rgba(255,255,255,.03);
+      backdrop-filter:blur(20px) saturate(1.2);
+      -webkit-backdrop-filter:blur(20px) saturate(1.2);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:24px;
+      max-width:480px;width:100%;margin:0 auto;
+      box-shadow:0 0 40px rgba(59,130,246,.06),0 8px 32px rgba(0,0,0,.5);
+      transition:box-shadow .8s ease}
+    .card.glow-blue{box-shadow:0 0 60px rgba(59,130,246,.12),0 8px 32px rgba(0,0,0,.5)}
+    .card.glow-green{box-shadow:0 0 60px rgba(34,197,94,.12),0 8px 32px rgba(0,0,0,.5)}
+    .card.glow-yellow{box-shadow:0 0 60px rgba(234,179,8,.12),0 8px 32px rgba(0,0,0,.5)}
+    .card.glow-red{box-shadow:0 0 60px rgba(239,68,68,.12),0 8px 32px rgba(0,0,0,.5)}
+    .card.glow-gray{box-shadow:0 0 40px rgba(100,116,139,.08),0 8px 32px rgba(0,0,0,.5)}
 
-      <!-- التذييل وزر نافذة الحقوق -->
-      <footer class="footer">
-        <p class="copyright">Starry Break © 2026</p>
-        <button id="creditsBtn" class="credits-btn" type="button" aria-haspopup="dialog">
-          [ الحقوق والترخيص ]
-        </button>
-      </footer>
+    .lede{font-size:.82rem;color:#94a3b8;text-align:center;margin-bottom:1rem}
+    .lede .soon{color:#64748b;font-size:.72rem}
+
+    .pick{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.5rem;margin-bottom:.6rem}
+    .opt{position:relative;cursor:pointer}
+    .opt input{position:absolute;opacity:0;pointer-events:none}
+    .opt span{display:inline-block;padding:.35rem .8rem;border-radius:8px;font-size:.75rem;
+      border:1px solid rgba(255,255,255,.1);color:#94a3b8;transition:all .2s}
+    .opt input:checked+span{border-color:#3b82f6;color:#60a5fa;background:rgba(59,130,246,.08)}
+    .opt-auto span{font-size:.7rem;opacity:.7}
+
+    .count{font-size:.72rem;color:#64748b;text-align:center;min-height:1.2em;margin-top:.2rem}
+
+    .status-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.8rem}
+    .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0;
+      animation:pulse 1.4s ease-in-out infinite}
+    .dot.blue{background:#3b82f6;box-shadow:0 0 8px #3b82f6}
+    .dot.green{background:#22c55e;box-shadow:0 0 8px #22c55e;animation:none}
+    .dot.yellow{background:#eab308;box-shadow:0 0 8px #eab308;animation:none}
+    .dot.red{background:#ef4444;box-shadow:0 0 8px #ef4444;animation:none}
+    .dot.gray{background:#64748b;box-shadow:0 0 6px #64748b;animation:none}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.6)}}
+    .status-row .txt{font-size:.82rem;color:#94a3b8}
+
+    .ring-wrap{position:relative;width:170px;height:170px;margin:0 auto .8rem}
+    .ring-wrap svg{transform:rotate(-90deg)}
+    .ring-bg{fill:none;stroke:rgba(255,255,255,.05);stroke-width:9}
+    .ring-fg{fill:none;stroke-width:9;stroke-linecap:round;
+      stroke-dasharray:490.09;stroke-dashoffset:490.09;
+      transition:stroke-dashoffset .6s cubic-bezier(.4,0,.2,1),filter .5s ease}
+    .ring-fg.blue{stroke:url(#gBlue);animation:ringPulse 2s ease-in-out infinite}
+    .ring-fg.green{stroke:url(#gGreen);animation:none;filter:drop-shadow(0 0 8px rgba(34,197,94,.6))}
+    .ring-fg.yellow{stroke:url(#gYellow);animation:none;filter:drop-shadow(0 0 8px rgba(234,179,8,.6))}
+    .ring-fg.red{stroke:url(#gRed);animation:none;filter:drop-shadow(0 0 8px rgba(239,68,68,.6))}
+    .ring-fg.gray{stroke:#475569;animation:none;filter:none}
+    @keyframes ringPulse{
+      0%,100%{filter:drop-shadow(0 0 4px rgba(59,130,246,.4))}
+      50%{filter:drop-shadow(0 0 12px rgba(59,130,246,.8))}}
+    .ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 1.6rem}
+    .ring-label .pct{font-size:1.5rem;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+    .ring-label .stage{font-size:.68rem;color:#64748b;margin-top:.2rem;
+      font-family:'Courier New',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+    .ring-label .stage::after{content:'|';animation:blink .7s step-end infinite}
+    @keyframes blink{50%{opacity:0}}
+
+    .msg-box{margin-top:.8rem;padding:.8rem 1rem;border-radius:12px;font-size:.8rem;
+      border:1px solid;width:100%;display:none;line-height:1.5}
+    .msg-box.show{display:block}
+    .msg-box.success{border-color:rgba(34,197,94,.4);background:rgba(34,197,94,.06);color:#86efac}
+    .msg-box.warn{border-color:rgba(234,179,8,.4);background:rgba(234,179,8,.06);color:#fde68a}
+    .msg-box.fatal{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.06);color:#fca5a5}
+    .msg-box.incompat{border-color:rgba(100,116,139,.4);background:rgba(100,116,139,.06);color:#94a3b8}
+    .msg-box h3{font-size:.85rem;margin-bottom:.35rem;font-weight:600}
+    .msg-box ul{padding-left:1.1rem;line-height:1.7}
+    .msg-box .hint{margin-top:.4rem;font-size:.75rem;opacity:.8}
+    .msg-box a{color:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
+
+    .dns-warn{margin-top:1rem;text-align:center;font-size:.78rem;line-height:1.6}
+    .dns-warn .yellow{color:#facc15;font-weight:600}
+    .dns-warn .blue{color:#60a5fa;font-weight:600}
+
+    .footer{margin-top:1.4rem;text-align:center;font-size:.68rem;color:#475569;line-height:1.8}
+    .footer .reset{display:inline-block;margin-top:.3rem;color:#60a5fa;text-decoration:none;cursor:pointer;font-size:.72rem}
+    .footer .reset:hover{text-decoration:underline}
+
+    /* ── Big success view ─────────────────────────────────────── */
+    .big-check{
+      font-size:5rem;
+      text-align:center;
+      animation:checkPop .6s cubic-bezier(.17,.67,.35,1.5) both;
+      filter:drop-shadow(0 0 16px rgba(34,197,94,.7));
+    }
+    @keyframes checkPop{
+      0%{transform:scale(0);opacity:0}
+      60%{transform:scale(1.3)}
+      100%{transform:scale(1);opacity:1}
+    }
+    #viewSuccess{display:none;text-align:center;width:100%;padding:2rem 0}
+    .card.done .ring-wrap,
+    .card.done .status-row,
+    .card.done .pick,
+    .card.done .count,
+    .card.done .lede,
+    .card.done .dns-warn,
+    .card.done #boxSuccess,
+    .card.done #boxWarn,
+    .card.done #boxFatal,
+    .card.done #boxIncompat{display:none!important}
+    .card.done #viewSuccess{display:block!important}
+    .card.done{border-color:rgba(34,197,94,.15)}
+  </style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="scanlines"></div>
+
+<div id="brand"><b>PS4 JAILBREAK</b></div>
+
+<div class="card" id="card">
+
+  <p class="lede">PS4 firmware v12.00</p>
+
+  <!-- Payload picker (launch.js needs these) -->
+  <form class="pick" id="pick">
+    <label class="opt">
+      <input type="radio" name="payload" value="goldhen" />
+      <span>GoldHEN 2.4b18.9</span>
+    </label>
+    <label class="opt opt-auto">
+      <input type="checkbox" id="auto" checked />
+      <span>Autostart</span>
+    </label>
+  </form>
+
+  <p class="count" id="count"></p>
+  <p class="count" id="cache" aria-live="polite"></p>
+
+  <!-- Status -->
+  <div class="status-row">
+    <span class="dot gray" id="dot"></span>
+    <span class="txt" id="statusText">checking device…</span>
+  </div>
+
+  <!-- Ring -->
+  <div class="ring-wrap">
+    <svg width="170" height="170" viewBox="0 0 170 170">
+      <defs>
+        <linearGradient id="gBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#22d3ee"/>
+        </linearGradient>
+        <linearGradient id="gGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#a3e635"/>
+        </linearGradient>
+        <linearGradient id="gYellow" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#f97316"/>
+        </linearGradient>
+        <linearGradient id="gRed" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#dc2626"/>
+        </linearGradient>
+      </defs>
+      <circle class="ring-bg" cx="85" cy="85" r="78"/>
+      <circle class="ring-fg gray" id="ringFg" cx="85" cy="85" r="78"/>
+    </svg>
+    <div class="ring-label">
+      <span class="pct" id="pctText">—</span>
+      <span class="stage" id="stageText">checking…</span>
     </div>
+  </div>
 
-    <!-- نافذة الحقوق والتراخيص الزجاجية (Glassmorphism Modal) -->
-    <div id="creditsModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="modal-card">
-        <div class="modal-header">
-          <h3 id="modalTitle" class="modal-title">الحقوق والترخيص المفتوح المصدر</h3>
-          <button id="closeModalBtn" class="modal-close" type="button" aria-label="إغلاق">&times;</button>
-        </div>
+  <!-- Incompatible -->
+  <div class="msg-box incompat" id="boxIncompat">
+    <h3>⊘ Not compatible</h3>
+    <p>This exploit only runs on <strong>PlayStation 4</strong> (FW v12.00).</p>
+    <div class="hint">Open this page in the PS4 web browser to continue.</div>
+  </div>
 
-        <!-- <div class="modal-body"> -->
-          <!-- <div class="credit-block"> -->
-            <!-- <h4 class="credit-category">المشروع الأصلي والواجهة (Project & Branding)</h4> -->
-            <!-- <p class="credit-row"> -->
-              <!-- <strong>Starry Break:</strong> تطوير الواجهة والهوية الفنية بواسطة <strong>نصرو بن عياد (Nasro Ben Ayad)</strong>. -->
-            <!-- </p> -->
-            <!-- <p class="credit-row"> -->
-              <!-- <strong>المشروع الأساسي:</strong> مبني على Afterglow Web بواسطة <strong>well0nez / m0zz</strong>. -->
-            <!-- </p> -->
-          <!-- </div> -->
+  <!-- Success (small box, hidden when .done view is active) -->
+  <div class="msg-box success" id="boxSuccess">
+    <h3>✓ Jailbreak successful</h3>
+    <div class="hint">Now <strong>GoldHEN</strong> is activated</div>
+  </div>
 
-          <!-- <div class="credit-block"> -->
-            <!-- <h4 class="credit-category">المساهمون التقنيون (Technical Contributors)</h4> -->
-            <!-- <ul class="credits-list"> -->
-              <!-- <li> -->
-                <!-- <strong>raw13g (MIT License):</strong> تطوير <code>jb.js</code>، <code>ps4_offsets.js</code>، وهيكلية الاستضافة الأصلية. -->
-              <!-- </li> -->
-              <!-- <li> -->
-                <!-- <strong>aminegold0 (silverps4hen):</strong> إعادة بناء وهندسة مضيف الويب. -->
-              <!-- </li> -->
-              <!-- <li> -->
-                <!-- <strong>jordyidk (slopkit):</strong> أدوات معالجة الذاكرة البدائية <code>core.js</code>، <code>mem.js</code>، <code>int64.js</code>. -->
-              <!-- </li> -->
-              <!-- <li> -->
-                <!-- <strong>SiSTRo:</strong> حمولة GoldHEN. -->
-              <!-- </li> -->
-              <!-- <li> -->
-                <!-- <strong>al-azif, Pharaoh2k, TheFlow, ChendoChap, abc, LightningMods, @egycnq:</strong> سلسلة تطوير أبحاث وترقيعات النواة (Kernel Patch Lineage). -->
-              <!-- </li> -->
-            <!-- </ul> -->
-          <!-- </div> -->
+  <!-- Big success view (replaces running UI) -->
+  <div id="viewSuccess">
+    <div class="big-check">✔️</div>
+    <h2 style="font-size:1.4rem;color:#86efac;margin:.8rem 0 .4rem;">Jailbreak Successful</h2>
+    <p style="font-size:.85rem;color:#94a3b8;">GoldHEN is now active</p>
+    <p style="font-size:.78rem;color:#64748b;margin-top:1rem;">Press <strong style="color:#e0e0e0">✕</strong> to return to PS4 home</p>
+  </div>
 
-          <!-- <div class="credit-block license-notice"> -->
-            <!-- <h4 class="credit-category">بيان التراخيص القانونية (Licenses)</h4> -->
-            <!-- <p class="license-text"> -->
-              <!-- <strong>AGPLv3:</strong> يغطي <code>afterglow.js</code> ومجموعات الترقيع <code>patchset-*.bin</code>. -->
-            <!-- </p> -->
-            <!-- <p class="license-text"> -->
-              <!-- <strong>MIT License:</strong> يغطي ملفات <code>raw13g</code> المرفقة. -->
-            <!-- </p> -->
-            <!-- <p class="disclaimer-text"> -->
-              <!-- <strong>إخلاء مسؤولية:</strong> لا يتم إعادة توزيع أي كود برمجي مملوك لشركة سوني (Sony). هذا العمل مخصص لأبحاث الحماية والأمان على الأجهزة والعتاد المملوك شخصياً فقط. -->
-            <!-- </p> -->
-          <!-- </div> -->
-        <!-- </div> -->
+  <!-- Warning -->
+  <div class="msg-box warn" id="boxWarn">
+    <h3>⚠ Exploit failed</h3>
+    <ul>
+      <li>Confirm firmware is <strong>v12.00</strong></li>
+      <li>Set DNS → <strong>62.210.38.117</strong> (block Sony)</li>
+      <li>PS4 &amp; host on same WiFi / LAN</li>
+    </ul>
+  </div>
 
-        <div class="modal-footer">
-          <button id="dismissModalBtn" class="modal-dismiss-btn" type="button">إغلاق</button>
-        </div>
-      </div>
-    </div>
+  <!-- Fatal -->
+  <div class="msg-box fatal" id="boxFatal">
+    <h3>✕ Fatal — timeout</h3>
+    <ul>
+      <li>Close the browser (PS → ✕) and retry</li>
+      <li>If persistent: restart PS4, re-open page</li>
+    </ul>
+    <div class="hint"><a id="fatalRetry">↻ auto-retry (clear &amp; re-run)</a></div>
+  </div>
 
-    <!-- نقطة الدخول البرمجية -->
-    <script src="launch.js"></script>
-  </body>
+  <!-- DNS -->
+  <div class="dns-warn">
+    <p class="yellow">⚠ Block Sony servers → DNS 62.210.38.117</p>
+    <p class="blue">☆ Add this site to bookmarks</p>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div>Afterglow · GoldHEN</div>
+    <a class="reset" id="resetLink" href="javascript:void(0)" style="display:none">Reset &amp; run again</a>
+  </div>
+
+</div>
+
+<!-- Hidden exploit iframe -->
+<iframe id="exploitFrame" src="about:blank" style="position:absolute;width:0;height:0;overflow:hidden;border:none"></iframe>
+
+<!-- launch.js: cache, countdown, payload picker -->
+<script src="launch.js"></script>
+
+<script>
+(function(){
+"use strict";
+
+var FLAG = "ps4jb_afterglow_done";
+var SESSION_MS = 5 * 60 * 1000; // 5 minutes
+var CIRC = 2 * Math.PI * 78;
+var TIMEOUT = 30000;
+
+var $ = function(id){ return document.getElementById(id); };
+var card = $("card"), dot = $("dot"), ring = $("ringFg");
+var pct = $("pctText"), stage = $("stageText"), status = $("statusText");
+var boxSuccess = $("boxSuccess"), boxWarn = $("boxWarn"),
+    boxFatal = $("boxFatal"), boxIncompat = $("boxIncompat");
+var resetLink = $("resetLink"), fatalRetry = $("fatalRetry");
+var frame = $("exploitFrame");
+
+var state = "idle", simTimer = null, timeout = null;
+
+// ── PS4 Detection ────────────────────────────────────────────────
+var isPS4 = /PlayStation/i.test(navigator.userAgent);
+
+if (!isPS4) {
+  setRing("gray");
+  status.textContent = "not compatible";
+  stage.textContent = "ps4 only";
+  pct.textContent = "—";
+  boxIncompat.classList.add("show");
+  card.className = "card glow-gray";
+  blockLaunch();
+  return;
+}
+
+// ── Anti-re-run (session-aware: 5 min window) ────────────────────
+var doneAt = null;
+try { doneAt = parseInt(localStorage.getItem(FLAG) || "0", 10); } catch(e) {}
+
+if (doneAt && (Date.now() - doneAt) < SESSION_MS) {
+  // Still fresh — show success view
+  setRing("green");
+  ring.style.strokeDashoffset = 0;
+  pct.textContent = "100%";
+  stage.textContent = "done ✓";
+  status.textContent = "jailbreak successful";
+  card.classList.add("done");
+  resetLink.style.display = "inline";
+  blockLaunch();
+  return;
+}
+
+// Stale or missing → clear and continue
+try { localStorage.removeItem(FLAG); } catch(e) {}
+
+// ── Override launch.js go() → iframe instead of navigation ──────
+window.go = function() {
+  if (window.gone) return;
+  window.gone = true;
+  var url = "jb.html?" + window.TARGET[window.picked()];
+  frame.src = url;
+  startSim();
+};
+
+// ── Block launch.js if we shouldn't run ──────────────────────────
+function blockLaunch() {
+  window.gone = true;
+  var form = $("pick");
+  if (form) form.addEventListener("submit", function(e){ e.preventDefault(); e.stopImmediatePropagation(); });
+}
+
+// ── Visual helpers ───────────────────────────────────────────────
+function setRing(cls) {
+  ring.className.baseVal = "ring-fg " + cls;
+  dot.className = "dot " + cls;
+  card.className = "card glow-" + cls;
+}
+
+function setProgress(p) {
+  ring.style.strokeDashoffset = CIRC * (1 - p / 100);
+  pct.textContent = Math.round(p) + "%";
+}
+
+// ── Stages ───────────────────────────────────────────────────────
+var stages = [
+  [0,   "loading…"],
+  [12,  "dns probe…"],
+  [25,  "rop chain…"],
+  [45,  "kernel patch…"],
+  [65,  "goldhen…"],
+  [85,  "finalizing…"],
+  [100, "done ✓"]
+];
+
+// ── Simulated progress ───────────────────────────────────────────
+function startSim() {
+  state = "running";
+  status.textContent = "running exploit…";
+  setRing("blue");
+
+  var p = 0;
+  simTimer = setInterval(function() {
+    if (state !== "running") return;
+    p += Math.random() * 2.5 + 3.25;   // avg 4.5% → ~4s
+    if (p >= 100) {
+      p = 100;
+      setProgress(p);
+      stage.textContent = "done ✓";
+      clearInterval(simTimer);
+      setTimeout(function(){ if (state === "running") finish("success"); }, 1500);
+      return;
+    }
+    setProgress(p);
+    var s;
+    for (var i = stages.length - 1; i >= 0; i--) {
+      if (p >= stages[i][0]) { s = stages[i]; break; }
+    }
+    if (s) stage.textContent = s[1];
+  }, 180);
+
+  timeout = setTimeout(function() {
+    if (state === "running") finish("fatal");
+  }, TIMEOUT);
+}
+
+// ── Terminal states ──────────────────────────────────────────────
+function finish(type, msg) {
+  if (state === "success" || state === "error" || state === "fatal") return;
+  state = type;
+  clearInterval(simTimer);
+  clearTimeout(timeout);
+
+  if (type === "success") {
+    setRing("green");
+    setProgress(100);
+    stage.textContent = "done ✓";
+    status.textContent = msg || "jailbreak successful";
+    card.classList.add("done");           // ← triggers big ✔️ view
+    try { localStorage.setItem(FLAG, String(Date.now())); } catch(e) {}
+    resetLink.style.display = "inline";
+  } else if (type === "error") {
+    setRing("yellow");
+    setProgress(0);
+    stage.textContent = "failed";
+    status.textContent = "exploit failed";
+    boxWarn.classList.add("show");
+    resetLink.style.display = "inline";
+  } else if (type === "fatal") {
+    setRing("red");
+    setProgress(0);
+    stage.textContent = "timeout";
+    status.textContent = "fatal — close browser & retry";
+    boxFatal.classList.add("show");
+  }
+}
+
+// ── postMessage from jb.html ─────────────────────────────────────
+window.addEventListener("message", function(e) {
+  if (!e.data || !e.data.type) return;
+  if (e.data.type === "jb-success") finish("success");
+  else if (e.data.type === "jb-error")   finish("error");
+  else if (e.data.type === "jb-fatal")   finish("fatal");
+});
+
+// ── Reset link ───────────────────────────────────────────────────
+resetLink.addEventListener("click", function() {
+  try { localStorage.removeItem(FLAG); } catch(e) {}
+  location.replace(location.pathname + "?t=" + Date.now());
+});
+
+// ── Fatal auto-retry ─────────────────────────────────────────────
+fatalRetry.addEventListener("click", function() {
+  try { localStorage.removeItem(FLAG); } catch(e) {}
+  location.replace(location.pathname + "?t=" + Date.now());
+});
+
+})();
+</script>
+</body>
 </html>

@@ -1,340 +1,204 @@
-/* ==========================================================================
-   Starry Break v3 - launch.js
-   5s initial countdown + dynamic 10s auto-launch timer (Always Active)
-   Maintains strict compliance with the PS4 WebKit Referrer Guard
-   ========================================================================== */
+/* The landing page: pick a payload, then start the run.
+ *
+ * Leaving this page has to be a real navigation from it -- the referrer guard
+ * in jb.js arms the chain only when the run page was reached from here. */
 
-(function () {
-  "use strict";
+var TARGET = {
+  // hen: "log=1&afterglow=run&payload=hen.bin",
+  goldhen: "log=1&afterglow=run&mode=goldhen",
+};
 
-  // معلمات الاستهداف المتوافقة مع صفحة التنفيذ jb.html
-  var TARGET = {
-    // hen: "log=1&afterglow=run&payload=hen.bin",
-    goldhen: "log=1&afterglow=run&mode=goldhen",
-  };
+var AUTOSTART_SECONDS = 1;
+var STORE_KEY = "afterglow.choice";
 
-  var AUTOSTART_SECONDS = 1; // 5s by default
-  var AUTO_LAUNCH_SECONDS = 1; // 10s by default
-  var CIRCUMFERENCE = 427.26; // 2 * Math.PI * 68
-  var STORE_KEY = "starry.payload";
-  var CACHE_WAIT_MS = 4000;
+var form = document.getElementById("pick");
+var autoBox = document.getElementById("auto");
+var countEl = document.getElementById("count");
+var cacheEl = document.getElementById("cache");
+var ticker = null;
+var waitingForCache = false;
+var gone = false;
 
-  var ARABIC_DIGITS = {
-    5: "5",
-    4: "4",
-    3: "3",
-    2: "2",
-    1: "1",
-    0: "0",
-  };
+/* How long the start may wait for the cache before it goes anyway.
+ *
+ * With no route the manifest check does not fail fast -- it sits on a
+ * network timeout, measured at 20-30 s on a console, and the page said
+ * "waiting for the cache" the whole time. Offline use is a first-class
+ * case here, not an edge case: the files are already on disk, and a run
+ * from them is exactly as good. So the wait is a courtesy with an upper
+ * bound, never a gate. */
 
-  // عناصر الواجهة
-  var countdownBox = document.getElementById("countdownBox");
-  var readyBox = document.getElementById("readyBox");
-  var timerCircle = document.getElementById("timerCircle");
-  var timerNum = document.getElementById("timerNum");
-  var timerLabel = document.getElementById("timerLabel");
-  var cacheStatus = document.getElementById("cacheStatus");
-  var startBtn = document.getElementById("startBtn");
-  var autoNotice = document.getElementById("autoNotice");
-  var countdownNum = document.getElementById("countdownNum");
-  var payloadSelector = document.getElementById("payloadSelector");
+/* The offline cache, and the one state that must not be run through.
+ *
+ * While the manifest is being checked or fetched, some modules are the ones
+ * the page loaded with and some are not yet on disk -- starting there can mix
+ * two builds. Every other state is fine to start from: IDLE is cached and
+ * current, UNCACHED means no cache at all (which works as long as the server
+ * answers), and a browser with no Application Cache at all -- every desktop
+ * browser since Chrome 95 -- must obviously still be able to start.
+ *
+ * So this blocks on CHECKING and DOWNLOADING and nothing else. The inverse,
+ * passing only on IDLE, leaves the button dead wherever the cache is absent.
+ *
+ * The idea is titotryh-ux's, from Fewi-PS4 911e08a. */
+var appCache = (function () {
+  try { return window.applicationCache || null; } catch (e) { return null; }
+})();
 
-  // عناصر نافذة الحقوق
-  var creditsBtn = document.getElementById("creditsBtn");
-  var creditsModal = document.getElementById("creditsModal");
-  var closeModalBtn = document.getElementById("closeModalBtn");
-  var dismissModalBtn = document.getElementById("dismissModalBtn");
-
-  var initialTicker = null;
-  var autoLaunchTicker = null;
-  var initialSecondsLeft = AUTOSTART_SECONDS;
-  var autoSecondsLeft = AUTO_LAUNCH_SECONDS;
-  var waitingForCache = false;
-  var cacheTimer = null;
-  var gone = false;
-
-  // مرجع الـ Application Cache
-  var appCache = (function () {
-    try {
-      return window.applicationCache || null;
-    } catch (e) {
-      return null;
-    }
-  })();
-
-  function isCacheBusy() {
-    if (!appCache) return false;
-    try {
-      return (
-        appCache.status === appCache.CHECKING ||
-        appCache.status === appCache.DOWNLOADING
-      );
-    } catch (e) {
-      return false;
-    }
+function cacheBusy() {
+  if (!appCache) return false;
+  try {
+    return appCache.status === appCache.CHECKING
+        || appCache.status === appCache.DOWNLOADING;
+  } catch (e) {
+    return false;
   }
+}
 
-  function updateCacheNote() {
-    if (!cacheStatus || !appCache) return;
-    var msg = "";
-    try {
-      if (appCache.status === appCache.CHECKING) {
-        msg = "جاري التحقق من التحديثات...";
-      } else if (appCache.status === appCache.DOWNLOADING) {
-        msg = "جاري تحميل الملفات للعمل دون إنترنت...";
-      } else if (appCache.status === appCache.UPDATEREADY) {
-        msg = "تم حفظ نسخة أحدث - أعد فتح الصفحة لاستخدامها";
-      } else if (appCache.status === appCache.CACHED) {
-        msg = "تم التخزين المؤقت بنجاح (جاهز دون اتصال)";
-      }
-    } catch (e) {}
-    cacheStatus.textContent = msg;
+function cacheNote() {
+  if (!cacheEl) return;
+  if (!appCache) { cacheEl.textContent = ""; return; }
+  var text = "";
+  try {
+    if (appCache.status === appCache.CHECKING) text = "checking for updates";
+    else if (appCache.status === appCache.DOWNLOADING) text = "loading files - hold on";
+    else if (appCache.status === appCache.UPDATEREADY) text = "a newer version is cached - reopen this page to use it";
+    else if (appCache.status === appCache.OBSOLETE) text = "the cache was dropped - the server answers directly";
+    /* Not a reason to refuse -- it works wherever the server answers. But it
+       means the manifest was not accepted, and offline that is the state in
+       which a fetch stalls instead of failing, so say it out loud. */
+    else if (appCache.status === appCache.UNCACHED) text = "no offline cache - the manifest was not accepted";
+  } catch (e) {}
+  cacheEl.textContent = text;
+}
+
+function cacheChanged() {
+  cacheNote();
+  /* Someone pressed start while the files were still coming down. Go now
+     that they are here, rather than making them press again. */
+  if (waitingForCache && !cacheBusy()) {
+    waitingForCache = false;
+    start();
   }
+}
 
-  function onCacheChange() {
-    updateCacheNote();
-    if (waitingForCache && !isCacheBusy()) {
-      waitingForCache = false;
-      start();
-    }
+if (appCache) {
+  var events = ["checking", "downloading", "progress", "cached", "noupdate",
+                "updateready", "error", "obsolete"];
+  for (var e = 0; e < events.length; e++) {
+    try { appCache.addEventListener(events[e], cacheChanged, false); } catch (err) {}
   }
+}
 
-  if (appCache) {
-    var events = [
-      "checking",
-      "downloading",
-      "progress",
-      "cached",
-      "noupdate",
-      "updateready",
-      "error",
-      "obsolete",
-    ];
-    for (var i = 0; i < events.length; i++) {
-      try {
-        appCache.addEventListener(events[i], onCacheChange, false);
-      } catch (err) {}
-    }
+/* The choice is remembered in localStorage, not by any HTTP cache: cache
+   headers decide whether a file is fetched again, never what the page
+   remembers. Both accessors are guarded, because storage can be unavailable
+   or throw outright, and the page has to work either way. */
+function remember() {
+  try {
+    localStorage.setItem(
+      STORE_KEY,
+      JSON.stringify({ payload: picked(), autostart: autoBox.checked }),
+    );
+  } catch (e) {}
+}
+
+function restore() {
+  var saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+  } catch (e) {}
+  if (!saved) return;
+
+  if (saved.payload && TARGET[saved.payload]) {
+    var radio = form.querySelector(
+      'input[name="payload"][value="' + saved.payload + '"]',
+    );
+    if (radio) radio.checked = true;
   }
+  if (typeof saved.autostart === "boolean") autoBox.checked = saved.autostart;
+}
 
-  // إدارة الحمولة المختارة
-  function getSelectedPayload() {
-    var radio = document.querySelector('input[name="payload"]:checked');
-    return radio ? radio.value : "goldhen";
+function picked() {
+  var radio = form.querySelector('input[name="payload"]:checked');
+  return radio ? radio.value : "goldhen";
+}
+
+function go() {
+  if (gone) return;
+  gone = true;
+  location.href = "jb.html?" + TARGET[picked()];
+}
+
+function offline() {
+  try { return navigator.onLine === false; } catch (e) { return false; }
+}
+
+function start() {
+  stopClock();
+  /* Not a refusal -- a wait that ends by itself. Starting while the manifest
+     is being checked or fetched can mix two builds, so there is no deadline
+     here that would run through that state: the cache events call back in
+     and the run begins the moment the files are in. Offline it does not wait
+     at all, because then there is nothing to wait for. */
+  if (!offline() && cacheBusy()) {
+    waitingForCache = true;
+    countEl.textContent = "waiting for the cache";
+    cacheNote();
+    return;
   }
+  go();
+}
 
-  function savePayloadChoice() {
-    try {
-      localStorage.setItem(STORE_KEY, getSelectedPayload());
-    } catch (e) {}
+function stopClock() {
+  if (ticker !== null) {
+    clearInterval(ticker);
+    ticker = null;
   }
+  countEl.textContent = "";
+}
 
-  function restorePayloadChoice() {
-    try {
-      var saved = localStorage.getItem(STORE_KEY);
-      if (saved && TARGET[saved]) {
-        var radio = document.querySelector(
-          'input[name="payload"][value="' + saved + '"]'
-        );
-        if (radio) radio.checked = true;
-      }
-    } catch (e) {}
-  }
-
-  // مغادرة الصفحة وتمرير الـ Referrer الصحيح لـ jb.html
-  function go() {
-    if (gone) return;
-    gone = true;
-    stopAllTimers();
-    if (cacheTimer !== null) {
-      clearTimeout(cacheTimer);
-      cacheTimer = null;
-    }
-    var targetParams = TARGET[getSelectedPayload()] || TARGET.goldhen;
-    location.href = "jb.html?" + targetParams;
-  }
-
-  function isOffline() {
-    try {
-      return navigator.onLine === false;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  function start() {
-    stopAutoLaunchTimer();
-    if (!isOffline() && isCacheBusy()) {
-      waitingForCache = true;
-      if (timerLabel) timerLabel.textContent = "بانتظار اكتمال التخزين المؤقت...";
-      updateCacheNote();
-      if (cacheTimer === null) {
-        cacheTimer = setTimeout(function () {
-          cacheTimer = null;
-          if (!gone) {
-            go();
-          }
-        }, CACHE_WAIT_MS);
-      }
+function startClock() {
+  var left = AUTOSTART_SECONDS;
+  countEl.textContent = "starting in " + left + "s";
+  ticker = setInterval(function () {
+    /* Hold, do not overtake: while the cache is moving the clock stands
+       still and picks up where it left off once the files are in. The old
+       behaviour let it run out mid-download and started anyway. */
+    if (!offline() && cacheBusy()) {
+      countEl.textContent = "cache is loading - start held";
+      cacheNote();
       return;
     }
-    go();
-  }
-
-  // دوال إيقاف العدادات
-  function stopInitialCountdown() {
-    if (initialTicker !== null) {
-      clearInterval(initialTicker);
-      initialTicker = null;
-    }
-  }
-
-  function stopAutoLaunchTimer() {
-    if (autoLaunchTicker !== null) {
-      clearInterval(autoLaunchTicker);
-      autoLaunchTicker = null;
-    }
-  }
-
-  function stopAllTimers() {
-    stopInitialCountdown();
-    stopAutoLaunchTimer();
-  }
-
-  // دورة العداد الأولي (5 ثوانٍ)
-  function updateInitialTimerUI(sec) {
-    if (timerNum) {
-      timerNum.textContent = ARABIC_DIGITS[sec] || sec;
-    }
-    if (timerCircle) {
-      var fraction = (AUTOSTART_SECONDS - sec) / AUTOSTART_SECONDS;
-      var offset = fraction * CIRCUMFERENCE;
-      timerCircle.style.strokeDashoffset = offset;
-    }
-  }
-
-  // دورة عداد الإطلاق التلقائي (10 ثوانٍ)
-  function startAutoLaunchTimer() {
-    stopAutoLaunchTimer();
-    autoSecondsLeft = AUTO_LAUNCH_SECONDS;
-
-    if (countdownNum) {
-      countdownNum.textContent = autoSecondsLeft;
-    }
-    if (autoNotice) {
-      autoNotice.classList.add("visible");
-    }
-
-    autoLaunchTicker = setInterval(function () {
-      autoSecondsLeft -= 1;
-
-      if (countdownNum) {
-        countdownNum.textContent = autoSecondsLeft;
-      }
-
-      // عند الوصول إلى الصفر -> إطلاق تلقائي
-      if (autoSecondsLeft <= 0) {
-        stopAutoLaunchTimer();
-        start();
-      }
-    }, 1000);
-  }
-
-  function finishInitialCountdown() {
-    stopInitialCountdown();
-
-    if (countdownBox) {
-      countdownBox.classList.add("hidden");
-    }
-
-    if (readyBox) {
-      readyBox.style.display = "flex";
-      setTimeout(function () {
-        readyBox.classList.add("active");
-        // بدء عداد الـ 10 ثوانٍ التلقائي دائماً
-        startAutoLaunchTimer();
-      }, 30);
-    }
-  }
-
-  function runInitialCountdown() {
-    initialSecondsLeft = AUTOSTART_SECONDS;
-    updateInitialTimerUI(initialSecondsLeft);
-
-    initialTicker = setInterval(function () {
-      initialSecondsLeft -= 1;
-      if (initialSecondsLeft <= 0) {
-        updateInitialTimerUI(0);
-        finishInitialCountdown();
-        return;
-      }
-      updateInitialTimerUI(initialSecondsLeft);
-    }, 1000);
-  }
-
-  // التحكم في نافذة الحقوق
-  function openModal() {
-    if (creditsModal) {
-      creditsModal.style.display = "flex";
-      setTimeout(function () {
-        creditsModal.classList.add("open");
-      }, 20);
-    }
-  }
-
-  function closeModal() {
-    if (creditsModal) {
-      creditsModal.classList.remove("open");
-      setTimeout(function () {
-        creditsModal.style.display = "none";
-      }, 300);
-    }
-  }
-
-  // ربط أحداث النقر
-  if (startBtn) {
-    startBtn.addEventListener("click", function () {
-      // إلغاء عداد الإطلاق التلقائي والتشغيل فوراً
-      stopAutoLaunchTimer();
+    left -= 1;
+    if (left <= 0) {
       start();
-    });
-  }
-
-  if (payloadSelector) {
-    payloadSelector.addEventListener("change", function () {
-      savePayloadChoice();
-    });
-  }
-
-  if (creditsBtn) {
-    creditsBtn.addEventListener("click", openModal);
-  }
-
-  if (closeModalBtn) {
-    closeModalBtn.addEventListener("click", closeModal);
-  }
-
-  if (dismissModalBtn) {
-    dismissModalBtn.addEventListener("click", closeModal);
-  }
-
-  if (creditsModal) {
-    creditsModal.addEventListener("click", function (e) {
-      if (e.target === creditsModal) {
-        closeModal();
-      }
-    });
-  }
-
-  window.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" || e.keyCode === 27) {
-      closeModal();
+      return;
     }
-  });
+    countEl.textContent = "starting in " + left + "s";
+  }, 1000);
+}
 
-  // التهيئة الأولية
-  restorePayloadChoice();
-  updateCacheNote();
-  runInitialCountdown();
-})();
+form.addEventListener("submit", function (ev) {
+  ev.preventDefault();
+  start();
+});
+
+form.addEventListener("change", function (ev) {
+  remember();
+  if (ev.target === autoBox) {
+    if (autoBox.checked) startClock();
+    else stopClock();
+    return;
+  }
+  /* Switching payload while the clock runs restarts it, so what is counting
+     down is always what is actually selected. */
+  if (ev.target.name === "payload" && autoBox.checked) {
+    stopClock();
+    startClock();
+  }
+});
+
+restore();
+cacheNote();
+if (autoBox.checked) startClock();
