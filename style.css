@@ -1,309 +1,571 @@
-/* afterglow -- shared styling for the landing page and the run page.
-
-   The page kind sits on <html> (.landing / .run), never on <body>: jb.js owns
-   the body classes .log, .done and .fail and replaces them wholesale, so a
-   page-kind class on <body> would not survive the first state change. */
+/* ==========================================================================
+   Starry Break - Cyber-Anime Monochrome Theme
+   Designed for PS4 WebKit Browser & Modern Desktops
+   RTL Arabic Layout | AGPLv3 / MIT Compliance
+   ========================================================================== */
 
 :root {
-  --bg: #0b0d10;
-  --panel: #0e1116;
-  --sunk: #11151b;
-  --line: #1e2732;
+  --color-black: #000000;
+  --color-dark-bg: #07080a;
+  --color-surface: rgba(14, 16, 22, 0.88);
+  --color-surface-hover: rgba(26, 30, 40, 0.95);
+  --color-border: rgba(255, 255, 255, 0.22);
+  --color-border-bright: #ffffff;
+  --color-white: #ffffff;
+  --color-text-dim: #cfd3dc;
+  --color-text-muted: #838a99;
+  --glow-soft: 0 0 16px rgba(255, 255, 255, 0.45);
+  --glow-strong: 0 0 28px rgba(255, 255, 255, 0.85);
+  --glow-intense: 0 0 45px rgba(255, 255, 255, 0.95);
 
-  --fg: #c8ced8;
-  --bright: #e6ebf2;
-  --dim: #7c8798;
-  --faint: #4d5765;
+  --font-heading: 'Aref Ruqaa', 'Amiri', 'Traditional Arabic', serif;
+  --font-ui: 'Tajawal', 'Cairo', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Consolas', 'DejaVu Sans Mono', monospace;
 
-  --ok: #7fd0a0;
-  --bad: #d08a7f;
-  --warn: #d8c07f;
-
-  --sans: "Segoe UI", system-ui, sans-serif;
-  --mono: Consolas, "DejaVu Sans Mono", monospace;
+  --timer-circumference: 427.26; /* 2 * PI * 68 */
 }
 
-* {
+/* Reset & Box Sizing */
+*, *::before, *::after {
   box-sizing: border-box;
-}
-
-html,
-body {
   margin: 0;
   padding: 0;
-  min-height: 100%;
-  background: var(--bg);
-  color: var(--fg);
-  font: 15px/1.45 var(--sans);
+  -webkit-font-smoothing: antialiased;
 }
 
-/* --- the bar at the top of both pages ----------------------------------- */
-
-#brand {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--line);
-  background: var(--panel);
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--color-black);
+  color: var(--color-white);
+  font-family: var(--font-ui);
+  direction: rtl;
   text-align: center;
+  overflow-x: hidden;
 }
 
-#brand b {
-  color: var(--bright);
-  font-size: 35px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  vertical-align: middle;
+/* Fixed Background Image with Dark Overlay */
+body {
+  background-image: url('img/bg.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  background-attachment: fixed;
+  position: relative;
 }
 
-.byline {
+.bg-overlay {
   position: fixed;
-  bottom: 9px;
-  left: 11px;
-  z-index: 9;
-  margin: 0;
-  color: var(--faint);
-  font: 18px/1 var(--mono);
-  letter-spacing: 0.06em;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  pointer-events: none;
+  z-index: 1;
 }
 
-/* --- landing page ------------------------------------------------------- */
+/* Main Layout Shell */
+.site-container {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 100vh;
+  padding: 40px 20px 24px;
+}
 
-.shell {
+/* ==========================================================================
+   Header & Anime Logo
+   ========================================================================== */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-container {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--color-white);
+  box-shadow: var(--glow-soft);
+  background: var(--color-black);
+}
+
+.anime-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.main-title {
+  font-family: var(--font-heading);
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--color-white);
+  text-shadow: 0 0 14px rgba(255, 255, 255, 0.7), 0 0 30px rgba(255, 255, 255, 0.35);
+  margin-top: 4px;
+}
+
+.subtitle {
+  font-family: var(--font-heading);
+  font-size: 19px;
+  color: var(--color-text-dim);
+  letter-spacing: 1px;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+/* ==========================================================================
+   Main Action Panel & Stages
+   ========================================================================== */
+
+.main-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 30px 0;
+  width: 100%;
+  max-width: 480px;
+}
+
+/* 5-Second Circular Countdown Stage */
+.countdown-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.countdown-box.hidden {
+  opacity: 0;
+  transform: scale(0.92);
+  pointer-events: none;
+  display: none;
+}
+
+.svg-timer-wrap {
+  position: relative;
+  width: 160px;
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 34px;
-  min-height: calc(100vh - 38px);
-  padding: 28px 20px 46px;
 }
 
-.meme {
-  width: 260px;
-  max-width: 50vw;
-  height: auto;
-}
-
-.panel {
-  width: 300px;
-}
-
-.lede {
-  margin: 0 0 1.6em;
-  color: var(--dim);
-  font-size: 13px;
-  letter-spacing: 0.04em;
-}
-
-/* The note sits on the same line as the supported versions and must read as
-   a note, not as a third supported one -- dimmer, and never broken apart. */
-.lede .soon {
-  opacity: 0.62;
-  white-space: nowrap;
-}
-
-.pick {
-  margin: 0;
-}
-
-.opt {
-  display: block;
-  margin-bottom: 8px;
-  padding: 11px 13px;
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  background: var(--panel);
-  cursor: pointer;
-}
-
-.opt:hover {
-  border-color: #2b3a4c;
-}
-
-.opt input {
-  margin: 0 9px 0 0;
-  vertical-align: middle;
-}
-
-.opt span {
-  vertical-align: middle;
-}
-
-/* The autostart switch is a different kind of choice from the payload
-   radios, so it sits apart from them rather than looking like a third one. */
-.opt-auto {
-  margin-top: 16px;
-  border-style: dashed;
-  background: none;
-  color: var(--dim);
-  font-size: 14px;
-}
-
-.btn {
-  display: block;
+.timer-svg {
   width: 100%;
-  margin-top: 16px;
-  padding: 0.8em 1.4em;
-  border: 1px solid #2f4a3c;
-  border-radius: 5px;
-  background: #16231d;
-  color: var(--ok);
-  font: 700 15px/1 var(--sans);
-  letter-spacing: 0.1em;
-  cursor: pointer;
+  height: 100%;
+  transform: rotate(-90deg); /* Start depletion at 12 o'clock */
 }
 
-.btn:hover,
-.btn:focus {
-  border-color: var(--ok);
-  outline: none;
+.timer-bg-circle {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 5;
 }
 
-.count {
-  margin: 12px 0 0;
-  min-height: 1.2em;
-  color: var(--ok);
-  font: 12px/1.2 var(--mono);
-  letter-spacing: 0.05em;
+.timer-progress-circle {
+  fill: none;
+  stroke: var(--color-white);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 427.26;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1s linear;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8));
 }
 
-/* --- run page ----------------------------------------------------------- */
-
-/* Running: a spinner under the bar. jb.js switches the body to .done, .fail
-   or .log. */
-#spin {
-  position: fixed;
-  top: calc(50% + 20px);
-  left: 50%;
-  width: 46px;
-  height: 46px;
-  margin: -23px 0 0 -23px;
-  border: 4px solid var(--line);
-  border-top-color: var(--ok);
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
+.timer-arabic-num {
+  position: absolute;
+  font-family: var(--font-heading);
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--color-white);
+  text-shadow: 0 0 16px rgba(255, 255, 255, 0.9);
+  line-height: 1;
+  user-select: none;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.timer-label {
+  margin-top: 18px;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  color: var(--color-white);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  animation: pulseText 2s infinite ease-in-out;
 }
 
-#msg {
-  position: fixed;
-  top: 50%;
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
-  display: none;
-  text-align: center;
-  font-size: 16px;
+@keyframes pulseText {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; text-shadow: 0 0 18px rgba(255, 255, 255, 0.9); }
+}
+
+.cache-status {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  min-height: 18px;
   letter-spacing: 0.5px;
 }
 
-#wrap {
-  padding: 0;
-}
-
-#state,
-#out {
+/* Post-Countdown Showcase & Button */
+.ready-box {
   display: none;
+  opacity: 0;
+  transform: translateY(18px);
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  transition: opacity 0.8s ease, transform 0.8s ease;
 }
 
-body.done #spin,
-body.fail #spin {
-  display: none;
+.ready-box.active {
+  display: flex;
+  opacity: 1;
+  transform: translateY(0);
 }
 
-body.fail #msg {
-  display: block;
-}
-
-body.done #msg {
-  display: block;
-  color: var(--ok);
+.anime-phrase {
+  font-family: var(--font-heading);
+  font-size: 38px;
   font-weight: 700;
   letter-spacing: 2px;
+  color: var(--color-white);
+  text-shadow: 0 0 12px #ffffff, 0 0 25px rgba(255, 255, 255, 0.85), 0 0 45px rgba(255, 255, 255, 0.5);
+  animation: glowCycle 3s infinite alternate ease-in-out;
 }
 
-/* ?log=1 -- the full step log. The column is laid out with flex rather than
-   by subtracting the header height from 100vh: the log then keeps filling
-   the page whatever the strip above it ends up being. */
-body.log {
+@keyframes glowCycle {
+  0% {
+    text-shadow: 0 0 10px #ffffff, 0 0 20px rgba(255, 255, 255, 0.7);
+  }
+  100% {
+    text-shadow: 0 0 18px #ffffff, 0 0 35px rgba(255, 255, 255, 0.95), 0 0 55px rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* Cyber-Anime Button */
+.cyber-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 44px;
+  font-family: var(--font-ui);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-white);
+  background: rgba(10, 12, 16, 0.85);
+  border: 1.5px solid var(--color-white);
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+  letter-spacing: 1.5px;
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.35);
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.cyber-btn:hover,
+.cyber-btn:focus {
+  background: var(--color-white);
+  color: var(--color-black);
+  box-shadow: var(--glow-strong), 0 0 45px rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+.cyber-btn:active {
+  transform: translateY(1px);
+  box-shadow: var(--glow-soft);
+}
+
+/* Payload Selector */
+.payload-selector {
   display: flex;
-  flex-direction: column;
-  height: 100vh;
+  align-items: center;
+  gap: 12px;
+  margin-top: 26px;
+  padding: 6px 14px;
+  background: rgba(14, 16, 22, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
 }
 
-body.log #spin,
-body.log #msg {
+.payload-label {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.payload-opt {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.payload-opt input {
   display: none;
 }
 
-body.log #wrap {
+.payload-pill {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-dim);
+  padding: 4px 12px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  transition: all 0.25s ease;
+}
+
+.payload-opt input:checked + .payload-pill {
+  background: var(--color-white);
+  color: var(--color-black);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* ==========================================================================
+   Footer & Copyright
+   ========================================================================== */
+
+.footer {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  padding: 14px 18px 30px;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 20px;
 }
 
-body.log #state {
-  display: block;
-  margin: 0 0 8px;
-  font-size: 22px;
-  font-weight: 700;
+.copyright {
+  font-size: 14px;
+  color: var(--color-text-dim);
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.9);
 }
 
-body.log #out {
-  display: block;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  background: var(--sunk);
-  font: 12px/1.45 var(--mono);
-  white-space: pre-wrap;
+.credits-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: var(--color-text-dim);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 
-/* The live heap readout sits in the flow under the bar. Nothing on this page
-   scrolls the document itself -- the log has its own scroll box -- so it
-   stays in view without being positioned over the wordmark. */
-#ramBox {
+.credits-btn:hover,
+.credits-btn:focus {
+  border-color: var(--color-white);
+  color: var(--color-white);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================================================
+   Glassmorphism Credits Modal
+   ========================================================================== */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.82);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-backdrop.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  background: rgba(11, 13, 17, 0.92);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 35px rgba(255, 255, 255, 0.08);
   overflow: hidden;
-  padding: 5px 10px;
-  border-bottom: 1px solid var(--line);
-  background: var(--sunk);
-  color: var(--ok);
-  font: 11px/1.4 var(--mono);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-align: right;
+  direction: rtl;
+  transform: scale(0.94);
+  transition: transform 0.3s ease;
 }
 
-/* The retry notice, raised by jb.js when the chain throws or stalls. */
-.notice {
-  margin: 1em 0;
-  padding: 0.7em 1em;
-  border: 2px solid #e66;
-  background: #2a1414;
-  color: #f99;
-  font: 700 20px/1.4 var(--sans);
+.modal-backdrop.open .modal-card {
+  transform: scale(1);
 }
 
-.ok {
-  color: var(--ok);
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(18, 21, 28, 0.85);
 }
 
-.bad {
-  color: var(--bad);
+.modal-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  color: var(--color-white);
+  letter-spacing: 0.5px;
 }
 
-.warn {
-  color: var(--warn);
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 6px;
+  transition: color 0.2s ease;
 }
 
-code {
-  color: #9fb3d0;
+.modal-close:hover,
+.modal-close:focus {
+  color: var(--color-white);
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.credit-block {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 14px;
+  border-radius: 6px;
+}
+
+.credit-category {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  color: var(--color-white);
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding-bottom: 4px;
+}
+
+.credit-row {
+  margin-bottom: 6px;
+  color: var(--color-text-dim);
+}
+
+.credits-list {
+  list-style: square inside;
+  color: var(--color-text-dim);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.credits-list code,
+.credit-block code {
+  font-family: var(--font-mono);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 13px;
+  direction: ltr;
+  display: inline-block;
+}
+
+.license-notice {
+  background: rgba(20, 20, 26, 0.6);
+  border-right: 3px solid var(--color-white);
+}
+
+.license-text {
+  color: var(--color-text-dim);
+  margin-bottom: 6px;
+}
+
+.disclaimer-text {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  border-top: 1px dashed rgba(255, 255, 255, 0.12);
+  padding-top: 8px;
+}
+
+.modal-footer {
+  padding: 12px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(14, 16, 22, 0.85);
+}
+
+.modal-dismiss-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-white);
+  color: var(--color-white);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  padding: 6px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-dismiss-btn:hover {
+  background: var(--color-white);
+  color: var(--color-black);
+}
+
+/* ==========================================================================
+   Responsive Tuning (Desktop & PS4 TV Over-scan)
+   ========================================================================== */
+
+@media (max-width: 600px) {
+  .main-title {
+    font-size: 34px;
+  }
+  .anime-phrase {
+    font-size: 30px;
+  }
+  .cyber-btn {
+    font-size: 19px;
+    padding: 12px 34px;
+  }
+  .logo-container {
+    width: 110px;
+    height: 110px;
+  }
 }

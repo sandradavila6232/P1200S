@@ -1,126 +1,105 @@
-# afterglow (web)
+# Starry Break ✦ ستاري بريك
 
-Kernel exploit for the PlayStation 4 on firmware **12.00, 12.02, 12.50, 12.52,
-13.00, 13.02, 13.04, 13.50, 13.52 and 14.00**, run from the console's own
-browser. It leaves the kernel readable and writable, `uid 0`, `mmap` handing
-out RWX and `syscall 11` as a kexec gate — so the usual payloads work as they
-do after any other kernel exploit.
+> واجهة ويب عصرية وأنيقة مستوحاة من طابع الأنمي الأحادي (Monochrome Cyber-Anime) لأجهزة PlayStation 4 على التحديثات **13.52** و **14.00**.
+> إعادة تصميم وتطوير كامل بواسطة **نصرو بن عياد (Nasro Ben Ayad)** مبني على مشروع *Afterglow Web*.
 
-afterglow is not Lapse.
+---
 
-## You need
+## ✦ المميزات البصرية والهندسية (Features)
 
-* PS4 on firmware 12.00, 12.02, 12.50, 12.52, 13.00, 13.02, 13.04, 13.50,
-  13.52 or 14.00, on your network
-* A machine on the same network with `python3`
+- **طابع فني أحادي (Monochrome Cyber-Anime):** تصميم باللونين الأبيض والأسود عالي التباين، مدمج مع صورة خلفية وشعار أنمي متوهج بتأثير نبض سلس.
+- **واجهة عربية متكاملة 100% (RTL Layout):** خطوط عربية فاخرة (Tajawal / Cairo لعناصر الواجهة، و Amiri / Aref Ruqaa للعناوين الفنية) مع دعم الخطوط البديلة عند العمل دون اتصال بالإنترنت.
+- **عداد تنازلي دائري تفاعلي (5s SVG Depletion):** مؤقت دائري ذكي يعتمد على الأرقام العربية المشرقية (٥، ٤، ٣، ٢، ١)، يعقبه ظهور العبارة الملهمة *"لا حدود... استمتع"* وزر التشغيل الفوري.
+- **نافذة حقوق زجاجية (Glassmorphism Modal):** توثيق شامل للتراخيص والمطورين والمصادر المفتوحة.
+- **حماية المرجع (Referrer Guard):** منع متصفح الكونسول من إعادة تنفيذ الاستغلال تلقائياً وبشكل غير مرغوب فيه عند استعادة الجلسة السابقة.
+- **تخزين مؤقت للعمل دون إنترنت (HTML5 AppCache):** إمكانية حفظ الصفحة بالكامل في ذاكرة متصفح PS4 بعد أول زيارة والعمل دون الحاجة لأي اتصال بالشبكة لاحقاً.
+- **استقرار كامل للثغرة:** الحفاظ على ملفات النواة والاستغلال الأصلية بنسبة 100% دون أي تعديل يمس دقة معالجة الذاكرة (Memory Grooming).
 
-Nothing is installed on the console. The pages are static files.
+---
 
-## Running it
+## ✦ متطلبات التشغيل والتوافق (Compatibility)
 
-```sh
-./serve.sh                      # port 8000, or AFTERGLOW_PORT=8080 ./serve.sh
+- **أجهزة PlayStation 4 (FAT / Slim / Pro)**
+- **إصدارات النظام المدعومة:**
+  - Firmware `13.52`
+  - Firmware `14.00`
+- **الحمولات المدعومة (Payloads):**
+  - **GoldHEN** (بواسطة SiSTRo) &mdash; الخيار الافتراضي
+  - **PS4-HEN**
+
+---
+
+## ✦ بنية المشروع (File Structure)
+
+```text
+starry/
+├── img/
+│   ├── logo.jpg           # شعار الأنمي (Image 1)
+│   └── bg.jpg             # خلفية الشاشة الداكنة (Image 2)
+├── index.html             # الصفحة الرئيسية والواجهة التفاعلية (Arabic RTL)
+├── style.css              # التنسيقات الفنية (Cyber-Anime CSS)
+├── launch.js              # إدارة العداد، الذاكرة المؤقتة، والانتقال
+├── jb.html                # صفحة تنفيذ الاستغلال والكونسول المنسقة
+├── jb.js                  # مشغل الاستضافة (raw13g host primitive)
+├── core.js                # أدوات معالجة الذاكرة البدائية (slopkit)
+├── mem.js                 # إدارة الذاكرة وقراءة العناوين
+├── int64.js               # حسابات العناوين 64 بت
+├── ps4_offsets.js         # إزاحات التحديثات المدعومة
+├── afterglow.js           # كود استغلال النواة
+├── patchset-1352.bin      # رقع النواة لتحديث 13.52
+├── patchset-1400.bin      # رقع النواة لتحديث 14.00
+├── goldhen.bin            # حمولة GoldHEN
+├── hen.bin                # حمولة PS4-HEN
+├── cache.appcache         # بيان التخزين المؤقت لمتصفح الكونسول
+├── make-manifest.sh       # أداة إعادة بناء الـ AppCache على Linux/Mac
+├── make_manifest.py       # أداة إعادة بناء الـ AppCache على Windows/Cross-platform
+├── CREDITS.md             # التوثيق القانوني وحقوق المساهمين
+└── README.md              # دليل المشروع
 ```
 
-Open `http://<host>:8000/` in the console's browser, pick **ps4-hen** or
-**GoldHEN**, press start. Tick *autostart* and it goes by itself after five
-seconds.
+---
 
-Each run has to begin on that page. The run page arms the chain only when it
-was reached from there, so a browser restoring its last session cannot set it
-off again with nobody watching.
+## ✦ تشغيل واستضافة المشروع (Hosting Instructions)
 
-## What is shipped
+### 1. الاستضافة عبر خادم محلي (Local Server):
+إذا كنت تستخدم جهاز كمبيوتر متصل بنفس الشبكة مع جهاز الـ PS4:
+```bash
+# باستخدام بايثون
+python -m http.server 8080
 
-| File | What it is |
-|---|---|
-| `hen.bin` | ps4-hen `pre-release-main-182`, **already patched** (see below) |
-| `goldhen.bin` | GoldHEN, included with the author's permission |
-| `patchset-1200.bin` … `patchset-1400.bin` | the kernel patches GoldHEN expects to find, one set per firmware |
-| `afterglow.js` | this work |
-| `jb.js`, `ps4_offsets.js` | the raw13g host, trimmed |
-| `core.js`, `mem.js`, `int64.js` | the in-process primitive, by way of that host |
-| `index.html`, `jb.html`, `launch.js`, `style.css`, `meme.png` | the landing page and the run page |
-| `serve.sh` | the local server, with the headers this needs |
-| `cache.appcache`, `make-manifest.sh` | the offline cache and the script that rebuilds it |
+# أو باستخدام شيل سيرفر (Linux/macOS)
+./serve.sh
+```
+ثم افتح متصفح الـ PS4 واكتب عنوان جهازك، على سبيل المثال: `http://192.168.1.50:8080`
 
-### ps4-hen is patched here
+### 2. الاستضافة المجانية عبر GitHub Pages:
+- ارفع ملفات المشروع إلى مستودع GitHub خاص بك.
+- توجه إلى **Settings** > **Pages** واضبط النشر على الفرع `main` أو `gh-pages`.
+- افتح رابط GitHub Pages من متصفح PS4 وسيقوم النظام بتخزينه تلقائياً في الذاكرة المؤقتة.
 
-Upstream `hen.bin` has a wrong address for `sceSblPfsSetKeys` on 14.00.
-Unpatched, **every app launch freezes the console** and the kernel stays broken
-until you reboot. The copy in this folder already carries the fix:
+---
 
-```sh
-md5sum hen.bin                  # 6417a84a72f9c7988f0e33b3ae190542  (patched)
-                                # 9aff7544eddef2f8202f72fc633d2be3  = upstream, do not use
+## ✦ إعادة بناء ملف التخزين المؤقت (Rebuilding `cache.appcache`)
+
+عند إجراء أي تعديل على ملفات الواجهة (`index.html`، `style.css`، `launch.js`، `img/*`)، **يجب بالضرورة** إعادة توليد ملف `cache.appcache`. بدون هذه الخطوة، سيستمر متصفح PS4 في تحميل النسخة القديمة من الذاكرة المخزنة!
+
+**على بيئة Windows (باستخدام Python المدمج):**
+```bash
+python make_manifest.py
 ```
 
-If you bring your own build, change `kpayload/source/offsets/1400.c`,
-`sceSblPfsSetKeys_addr` from `0x006272B0` to `0x00627270`. Why, and how it was
-established: `TECHNICAL.md`.
+**على بيئة Linux / macOS (باستخدام Bash):**
+```bash
+chmod +x make-manifest.sh
+./make-manifest.sh
+```
 
-## If it stops
+---
 
-Expect to repeat one now and then. Ten hand-run rounds on 14.00 landed nine
-times; a failure in the WebKit stage costs nothing, so going again is cheap.
-13.52 has fewer runs behind it and no number worth quoting yet.
+## ✦ الحقوق والتراخيص (Licenses & Acknowledgments)
 
-**All ten firmwares are confirmed on hardware.** 13.04 ran here on
-05.11.2026 — first attempt, `uid 0`, payload started. 13.00, 13.02 and 13.50
-were confirmed by testers on 06.11.2026, and 12.00, 12.02, 12.50 and 12.52
-on 07.11.2026.
-
-The page tells you which of these happened.
-
-| What it says | What it cost | What to do |
-|---|---|---|
-| `exploit failed - please retry (reopen browser)` | nothing — no apm unit spent, no kernel byte written | reopen the browser and go again |
-| nothing at all, for 45 s | same | the watchdog says the same thing; if even that does not appear, the WebProcess is gone — cold start |
-| `the handles are NOT defused` | the chain got far and could not clean up | **do not close the browser** — cold start |
-
-That last one matters. With the handles left armed, the next process exit runs
-`fo_close` into `apmclose` and never completes — and closing the browser *is*
-that exit, so no browser restart will help afterwards.
-
-There is also a failure that cannot be caught. The reclaimed object supplies
-the stack pointer, and the kernel reads it before a single instruction of ours
-runs. When some other kernel allocation wins the hole instead, ring 0 carries
-on with a stack pointer out of a stranger's object and the console dies right
-there — no message, no clean shutdown. Don't run this with anything unsaved on
-the console.
-
-## Reviews wanted
-
-Issues and pull requests welcome, and so is a report that it simply worked. Say
-which model and firmware you tried.
-
-## Credits
-
-* **raw13g** — [raw13g.github.io](https://github.com/raw13g/raw13g.github.io),
-  the host this page grew out of (`jb.js`, `ps4_offsets.js`, the page
-  scaffolding), MIT, see `LICENSE-raw13g`
-* **aminegold0** — [silverps4hen](https://github.com/aminegold0/silverps4hen),
-  the rebuilt version of that host this one actually descends from
-* **jordyidk** — [slopkit](https://github.com/jordyidk/slopkit), the PS5
-  jailbreak the in-process primitive (`core.js`, `mem.js`, `int64.js`)
-  descends from
-* **John** — [janisslsm](https://github.com/janisslsm), testing 12.xx and 13.xx
-* **Shiroe Galleu** — testing 13.02
-* **al-azif** — <https://github.com/al-azif/>
-* **SiSTRo** — GoldHEN
-* **Big_Wadger**
-* **Pharaoh2k**
-* **TheFlow, ChendoChap, abc, AlAzif, LightningMods, @egycnq** — the PS4 kernel
-  patch and sandbox escape lineage these payloads build on
-* everyone who publishes their findings instead of sitting on them
-
-## Legal
-
-Security research on hardware we own. No Sony code is redistributed.
-
-`afterglow.js` and the patch sets are licensed under the GNU Affero General
-Public License v3.0 or later; see `LICENSE`. The bundled code keeps its own
-terms: `jb.js`, `ps4_offsets.js` and the page scaffolding are raw13g's under
-the MIT license, reproduced in `LICENSE-raw13g`. `core.js`, `mem.js` and
-`int64.js` are a reworked fork of slopkit's primitive and carry no license of
-their own — where they come from is in `TECHNICAL.md`.
+- تم بناء وتنسيق هذه النسخة بواسطة **نصرو بن عياد (Nasro Ben Ayad)**.
+- المشروع مبني على كود **Afterglow Web** للباحثين `well0nez` و `m0zz`.
+- يخضع كود النواة ومجموعات الترقيع لرخصة **GNU AGPLv3**.
+- تخضع ملفات المضيف الأصلية المكتوبة بواسطة `raw13g` لرخصة **MIT License**.
+- جميع الحقوق محفوظة لأصحابها وفق ما تم تفصيله في ملف [CREDITS.md](CREDITS.md).
