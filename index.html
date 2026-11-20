@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="landing" lang="en" manifest="cache.appcache">
+<html class="landing" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -118,17 +118,21 @@
 <div class="bg"></div>
 <div class="scanlines"></div>
 
-<div id="brand"><b>JAILBREAK PS4</b></div>
+<div id="brand"><b>JAILBREAK PS4 — FIRMWARE 12.00 → 14.00</b></div>
 
 <div class="card" id="card">
 
-  <p class="lede">PS4 FIRMWARE v12.00</p>
+  <p class="lede">PS4 firmware 12.00 – 14.00 <span class="soon">· 14.02 soon</span></p>
 
   <!-- Payload picker (launch.js needs these) -->
   <form class="pick" id="pick">
     <label class="opt">
+      <input type="radio" name="payload" value="hen" />
+      <span>GoldHEN 2.4b18.9 (12.00→13.00)</span>
+    </label>
+    <label class="opt">
       <input type="radio" name="payload" value="goldhen" checked />
-      <span>GoldHEN 2.4b18.9 (v12.00)</span>
+      <span>GoldHEN 2.4b18.13 (13.02→14.00)</span>
     </label>
     <label class="opt opt-auto">
       <input type="checkbox" id="auto" checked />
@@ -174,21 +178,21 @@
   <!-- Incompatible -->
   <div class="msg-box incompat" id="boxIncompat">
     <h3>⊘ Not compatible</h3>
-    <p>This exploit only runs on <strong>PlayStation 4</strong> (FW v12.00).</p>
+    <p>This exploit only runs on <strong>PlayStation 4</strong> (FW 12.00–14.00).</p>
     <div class="hint">Open this page in the PS4 web browser to continue.</div>
   </div>
 
   <!-- Success -->
   <div class="msg-box success" id="boxSuccess">
     <h3>✓ Jailbreak successful</h3>
-    <div class="hint">GoldHEN is activated.</div>
+    <div class="hint">Press <strong>✕</strong> to return to PS4 home</div>
   </div>
 
   <!-- Warning -->
   <div class="msg-box warn" id="boxWarn">
     <h3>⚠ Exploit failed</h3>
     <ul>
-      <li>Confirm firmware is <strong>v12.00</strong></li>
+      <li>Confirm firmware is <strong>12.00 – 14.00</strong></li>
       <li>Set DNS → <strong>62.210.38.117</strong> (block Sony)</li>
       <li>PS4 &amp; host on same WiFi / LAN</li>
     </ul>
@@ -213,7 +217,7 @@
   <!-- Footer -->
   <div class="footer">
     <div>Afterglow · GoldHEN</div>
-    <!-- <a class="reset" id="resetLink" href="javascript:void(0)" style="display:none">Reset &amp; run again</a> -->
+    <a class="reset" id="resetLink" href="javascript:void(0)" style="display:none">Reset &amp; run again</a>
   </div>
 
 </div>
@@ -247,8 +251,8 @@ var isPS4 = /PlayStation/i.test(navigator.userAgent);
 
 if (!isPS4) {
   setRing("gray");
-  status.textContent = "Not compatible";
-  stage.textContent = "PS4 only";
+  status.textContent = "not compatible";
+  stage.textContent = "ps4 only";
   pct.textContent = "—";
   boxIncompat.classList.add("show");
   card.className = "card glow-gray";
@@ -262,8 +266,8 @@ try {
     setRing("green");
     ring.style.strokeDashoffset = 0;
     pct.textContent = "100%";
-    stage.textContent = "Done ✓";
-    status.textContent = "Jailbreak Successful";
+    stage.textContent = "done ✓";
+    status.textContent = "jailbreak successful";
     boxSuccess.classList.add("show");
     resetLink.style.display = "inline";
     blockLaunch();
@@ -305,13 +309,13 @@ function setProgress(p) {
 
 // ── Stages ───────────────────────────────────────────────────────
 var stages = [
-  [0,   "Loading…"],
-  [12,  "DNS probe…"],
-  [25,  "Rop chain…"],
-  [45,  "Kernel patch…"],
-  [65,  "Goldhen…"],
-  [85,  "Finalizing…"],
-  [100, "Done ✓"]
+  [0,   "loading…"],
+  [12,  "dns probe…"],
+  [25,  "rop chain…"],
+  [45,  "kernel patch…"],
+  [65,  "goldhen…"],
+  [85,  "finalizing…"],
+  [100, "done ✓"]
 ];
 
 // ── Simulated progress (visual only, iframe does the real work) ──
@@ -323,11 +327,11 @@ function startSim() {
   var p = 0;
   simTimer = setInterval(function() {
     if (state !== "running") return;
-    p += Math.random() * 2 + 2.6;     // avg 3.6% → ~5s
+    p += Math.random() * 3.5 + 0.8;
     if (p >= 100) {
       p = 100;
       setProgress(p);
-      stage.textContent = "Done ✓";
+      stage.textContent = "done ✓";
       clearInterval(simTimer);
       // 1.5s grace for iframe to signal
       setTimeout(function(){ if (state === "running") finish("success"); }, 1500);
@@ -356,8 +360,8 @@ function finish(type, msg) {
   if (type === "success") {
     setRing("green");
     setProgress(100);
-    stage.textContent = "Done ✓";
-    status.textContent = msg || "Jailbreak Successful";
+    stage.textContent = "done ✓";
+    status.textContent = msg || "jailbreak successful";
     boxSuccess.classList.add("show");
     try { localStorage.setItem(FLAG, "1"); } catch(e) {}
     resetLink.style.display = "inline";
