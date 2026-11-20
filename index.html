@@ -276,11 +276,12 @@ var frame = $("exploitFrame");
 
 var state = "idle", simTimer = null, timeout = null;
 
-// ── Visual helpers ───────────────────────────────────────────────
+/* ── Visual helpers ───────────────────────────────────────────── */
 function setRing(cls) {
-  ring.className.baseVal = "ring-fg " + cls;
+  ring.setAttribute("class", "ring-fg " + cls);
   dot.className = "dot " + cls;
-  // classList (not className=) so the "done" class is never wiped
+
+  // Use classList so the "done" class is never accidentally wiped.
   card.classList.remove("glow-blue","glow-green","glow-yellow","glow-red","glow-gray");
   card.classList.add("glow-" + cls);
 }
@@ -304,12 +305,19 @@ function reloadClean() {
   location.replace(location.pathname + "?t=" + Date.now());
 }
 
-// FIX: attach listeners BEFORE any early return, otherwise the
-// "already done" screen shows a Reset link that does nothing.
+function hideBoxes() {
+  boxSuccess.classList.remove("show");
+  boxWarn.classList.remove("show");
+  boxFatal.classList.remove("show");
+  boxIncompat.classList.remove("show");
+}
+
+/* ── Attach listeners BEFORE any early return ─────────────────── */
+// Otherwise the "already done" screen shows a dead Reset link.
 resetLink.addEventListener("click", reloadClean);
 fatalRetry.addEventListener("click", reloadClean);
 
-// ── launch.js go() override → iframe instead of navigation ───────
+/* ── launch.js go() override → iframe, no navigation ─────────── */
 window.go = function() {
   if (window.gone) return;
   window.gone = true;
@@ -318,12 +326,17 @@ window.go = function() {
   startSim();
 };
 
-// ── Terminal states ──────────────────────────────────────────────
+/* ── Terminal states ──────────────────────────────────────────── */
 function finish(type, msg) {
-  if (state === "success" || state === "error" || state === "fatal") return;
+  // Once success happens, nothing may overwrite it.
+  // But a later success MUST be able to override an earlier error/fatal.
+  if (state === "success") return;
+  if (state === type) return;          // ignore duplicate messages
+
   state = type;
   clearInterval(simTimer);
   clearTimeout(timeout);
+  hideBoxes();
 
   if (type === "success") {
     setRing("green");
@@ -351,7 +364,7 @@ function finish(type, msg) {
   }
 }
 
-// ── Stages ───────────────────────────────────────────────────────
+/* ── Stages ───────────────────────────────────────────────────── */
 var stages = [
   [0,   "loading…"],
   [12,  "dns probe…"],
@@ -362,7 +375,7 @@ var stages = [
   [100, "done ✓"]
 ];
 
-// ── Cosmetic progress ONLY — it never decides success ───────────
+/* ── Cosmetic progress only — never decides success ──────────── */
 function startSim() {
   state = "running";
   status.textContent = "running exploit…";
@@ -372,13 +385,15 @@ function startSim() {
   simTimer = setInterval(function() {
     if (state !== "running") return;
     p += Math.random() * 2.5 + 3.25;
+
     if (p >= 95) {
-      p = 95;                       // hold here, wait for jb.html postMessage
+      p = 95;                       // hold here, wait for real result
       setProgress(p);
       stage.textContent = "waiting for payload…";
       clearInterval(simTimer);
       return;
     }
+
     setProgress(p);
     var s;
     for (var i = stages.length - 1; i >= 0; i--) {
@@ -392,16 +407,24 @@ function startSim() {
   }, TIMEOUT);
 }
 
-// ── Only the iframe result is authoritative ─────────────────────
+/* ── Iframe result is authoritative ──────────────────────────── */
+// No e.source filter: success may come from a nested iframe inside jb.html.
 window.addEventListener("message", function(e) {
-  if (e.source && frame.contentWindow && e.source !== frame.contentWindow) return;
   if (!e.data || !e.data.type) return;
-  if (e.data.type === "jb-success") finish("success");
-  else if (e.data.type === "jb-error")   finish("error");
-  else if (e.data.type === "jb-fatal")   finish("fatal");
+
+  var t = e.data.type;
+
+  // Accept both "jb-success" and plain "success" style names.
+  if (t === "success") t = "jb-success";
+  else if (t === "error") t = "jb-error";
+  else if (t === "fatal") t = "jb-fatal";
+
+  if      (t === "jb-success") finish("success");
+  else if (t === "jb-error")   finish("error");
+  else if (t === "jb-fatal")   finish("fatal");
 });
 
-// ── PS4 detection ─────────────────────────────────────────────────
+/* ── PS4 detection ────────────────────────────────────────────── */
 if (!/PlayStation/i.test(navigator.userAgent)) {
   setRing("gray");
   status.textContent = "not compatible";
@@ -412,7 +435,7 @@ if (!/PlayStation/i.test(navigator.userAgent)) {
   return;
 }
 
-// ── Anti-re-run (5 min window) ────────────────────────────────────
+/* ── Anti-re-run (5 min window) ───────────────────────────────── */
 var doneAt = null;
 try { doneAt = parseInt(localStorage.getItem(FLAG) || "0", 10); } catch(e) {}
 
@@ -428,6 +451,7 @@ if (doneAt && (Date.now() - doneAt) < SESSION_MS) {
   return;
 }
 
+// Stale or missing → clear and allow a fresh run.
 try { localStorage.removeItem(FLAG); } catch(e) {}
 
 })();
