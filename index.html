@@ -327,7 +327,7 @@ function startSim() {
   var p = 0;
   simTimer = setInterval(function() {
     if (state !== "running") return;
-    p += Math.random() * 3.5 + 0.8;
+    p += Math.random() * 2.5 + 3.25;   // avg 4.5% → ~4s
     if (p >= 100) {
       p = 100;
       setProgress(p);
