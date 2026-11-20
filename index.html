@@ -181,7 +181,7 @@
   <!-- Success -->
   <div class="msg-box success" id="boxSuccess">
     <h3>✓ Jailbreak successful</h3>
-    <div class="big-check">✔️</div>
+    <div class="hint">Close this page , and play your games.</div>
   </div>
 
   <!-- Warning -->
@@ -247,8 +247,8 @@ var isPS4 = /PlayStation/i.test(navigator.userAgent);
 
 if (!isPS4) {
   setRing("gray");
-  status.textContent = "not compatible";
-  stage.textContent = "ps4 only";
+  status.textContent = "Not compatible";
+  stage.textContent = "PS4 only";
   pct.textContent = "—";
   boxIncompat.classList.add("show");
   card.className = "card glow-gray";
