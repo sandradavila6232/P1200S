@@ -23,11 +23,6 @@ function showNotice(text) {
     (document.getElementById("out") || document.body).appendChild(box);
     document.body.classList.add("fail");
   } catch (e) {}
-
-  // ── Signal the parent (index.html) ──
-  try {
-    parent.postMessage({ type: "jb-error" }, "*");
-  } catch (e) {}
 }
 
 function showRetry() {
@@ -237,11 +232,6 @@ function finishUI(ok, ran) {
         ? "Restart your console"
         : "Refresh the page and run again";
   document.body.className = ok ? "done" : "fail";
-
-  // ── Signal the parent (index.html) ──
-  try {
-    parent.postMessage({ type: ok ? "jb-success" : "jb-error" }, "*");
-  } catch (e) {}
 }
 function mark(tag, detail) {
   lastMark = Date.now();
