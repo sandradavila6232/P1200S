@@ -122,7 +122,7 @@
 
 <div class="card" id="card">
 
-  <p class="lede">PS4 FIRMWARE v12.00</p><br>
+  <p class="lede">PS4 FIRMWARE v12.00</p>
 
   <!-- Payload picker (launch.js needs these) -->
   <form class="pick" id="pick">
@@ -143,7 +143,7 @@
   <div class="status-row">
     <span class="dot gray" id="dot"></span>
     <span class="txt" id="statusText">checking device…</span>
-  </div><br>
+  </div>
 
   <!-- Ring -->
   <div class="ring-wrap">
@@ -181,7 +181,7 @@
   <!-- Success -->
   <div class="msg-box success" id="boxSuccess">
     <h3>✓ Jailbreak successful</h3>
-    <div class="hint">Close this page , and play your games.</div>
+    <div class="hint">GoldHEN is activated.</div>
   </div>
 
   <!-- Warning -->
@@ -202,7 +202,7 @@
       <li>If persistent: restart PS4, re-open page</li>
     </ul>
     <div class="hint"><a id="fatalRetry">↻ auto-retry (clear &amp; re-run)</a></div>
-  </div><br>
+  </div>
 
   <!-- DNS -->
   <div class="dns-warn">
@@ -262,8 +262,8 @@ try {
     setRing("green");
     ring.style.strokeDashoffset = 0;
     pct.textContent = "100%";
-    stage.textContent = "done ✓";
-    status.textContent = "jailbreak successful";
+    stage.textContent = "Done ✓";
+    status.textContent = "Jailbreak Successful";
     boxSuccess.classList.add("show");
     resetLink.style.display = "inline";
     blockLaunch();
@@ -305,13 +305,13 @@ function setProgress(p) {
 
 // ── Stages ───────────────────────────────────────────────────────
 var stages = [
-  [0,   "loading…"],
-  [12,  "dns probe…"],
-  [25,  "rop chain…"],
-  [45,  "kernel patch…"],
-  [65,  "goldhen…"],
-  [85,  "finalizing…"],
-  [100, "done ✓"]
+  [0,   "Loading…"],
+  [12,  "DNS probe…"],
+  [25,  "Rop chain…"],
+  [45,  "Kernel patch…"],
+  [65,  "Goldhen…"],
+  [85,  "Finalizing…"],
+  [100, "Done ✓"]
 ];
 
 // ── Simulated progress (visual only, iframe does the real work) ──
@@ -327,7 +327,7 @@ function startSim() {
     if (p >= 100) {
       p = 100;
       setProgress(p);
-      stage.textContent = "done ✓";
+      stage.textContent = "Done ✓";
       clearInterval(simTimer);
       // 1.5s grace for iframe to signal
       setTimeout(function(){ if (state === "running") finish("success"); }, 1500);
@@ -356,8 +356,8 @@ function finish(type, msg) {
   if (type === "success") {
     setRing("green");
     setProgress(100);
-    stage.textContent = "done ✓";
-    status.textContent = msg || "jailbreak successful";
+    stage.textContent = "Done ✓";
+    status.textContent = msg || "Jailbreak Successful";
     boxSuccess.classList.add("show");
     try { localStorage.setItem(FLAG, "1"); } catch(e) {}
     resetLink.style.display = "inline";
