@@ -181,7 +181,7 @@
   <!-- Success -->
   <div class="msg-box success" id="boxSuccess">
     <h3>✓ Jailbreak successful</h3>
-    <div class="hint">Press <strong>✕</strong> to return to PS4 home</div>
+    <div class="big-check">✔️</div>
   </div>
 
   <!-- Warning -->
@@ -323,15 +323,11 @@ function startSim() {
   var p = 0;
   simTimer = setInterval(function() {
     if (state !== "running") return;
-    p += Math.random() * 2 + 2.6;     // avg 3.6% → ~5s
-    if (p >= 100) {
-      p = 100;
-      setProgress(p);
-      stage.textContent = "done ✓";
-      clearInterval(simTimer);
-      // 1.5s grace for iframe to signal
-      setTimeout(function(){ if (state === "running") finish("success"); }, 1500);
-      return;
+    // Ease toward 90% — never reaches 100% on its own
+    var target = 90;
+    if (p < target) {
+      p += (target - p) * 0.04 + 0.15;
+      if (p > target) p = target;
     }
     setProgress(p);
     var s;
@@ -339,8 +335,9 @@ function startSim() {
       if (p >= stages[i][0]) { s = stages[i]; break; }
     }
     if (s) stage.textContent = s[1];
-  }, 180);
+  }, 100);
 
+  // 30s timeout → fatal (only safety net)
   timeout = setTimeout(function() {
     if (state === "running") finish("fatal");
   }, TIMEOUT);
