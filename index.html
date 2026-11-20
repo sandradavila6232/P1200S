@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="landing" lang="en">
+<html class="landing" lang="en" manifest="cache.appcache">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -118,22 +118,22 @@
 <div class="bg"></div>
 <div class="scanlines"></div>
 
-<div id="brand"><b>JAILBREAK PS4 — FIRMWARE 12.00 → 14.00</b></div>
+<div id="brand"><b>PS4 JAILBREAK</b></div>
 
 <div class="card" id="card">
 
-  <p class="lede">PS4 firmware 12.00 – 14.00 <span class="soon">· 14.02 soon</span></p>
+  <p class="lede">PS4 firmware v12.00</p>
 
   <!-- Payload picker (launch.js needs these) -->
   <form class="pick" id="pick">
     <label class="opt">
-      <input type="radio" name="payload" value="hen" />
-      <span>GoldHEN 2.4b18.9 (12.00→13.00)</span>
+      <input type="radio" name="payload" value="goldhen" />
+      <span>GoldHEN 2.4b18.9</span>
     </label>
-    <label class="opt">
-      <input type="radio" name="payload" value="goldhen" checked />
-      <span>GoldHEN 2.4b18.13 (13.02→14.00)</span>
-    </label>
+    <!-- <label class="opt"> -->
+      <!-- <input type="radio" name="payload" value="goldhen" checked /> -->
+      <!-- <span>GoldHEN 2.4b18.13 (13.02→14.00)</span> -->
+    <!-- </label> -->
     <label class="opt opt-auto">
       <input type="checkbox" id="auto" checked />
       <span>Autostart</span>
@@ -178,21 +178,21 @@
   <!-- Incompatible -->
   <div class="msg-box incompat" id="boxIncompat">
     <h3>⊘ Not compatible</h3>
-    <p>This exploit only runs on <strong>PlayStation 4</strong> (FW 12.00–14.00).</p>
+    <p>This exploit only runs on <strong>PlayStation 4</strong> (FW v12.00).</p>
     <div class="hint">Open this page in the PS4 web browser to continue.</div>
   </div>
 
   <!-- Success -->
   <div class="msg-box success" id="boxSuccess">
     <h3>✓ Jailbreak successful</h3>
-    <div class="hint">Press <strong>✕</strong> to return to PS4 home</div>
+    <div class="hint">Now <strong>GoldHEN</strong> is activated</div>
   </div>
 
   <!-- Warning -->
   <div class="msg-box warn" id="boxWarn">
     <h3>⚠ Exploit failed</h3>
     <ul>
-      <li>Confirm firmware is <strong>12.00 – 14.00</strong></li>
+      <li>Confirm firmware is <strong>v12.00</strong></li>
       <li>Set DNS → <strong>62.210.38.117</strong> (block Sony)</li>
       <li>PS4 &amp; host on same WiFi / LAN</li>
     </ul>
