@@ -206,8 +206,9 @@
 
   <!-- Success (small box, hidden when .done view is active) -->
   <div class="msg-box success" id="boxSuccess">
-    <h3>✓ Jailbreak successful</h3>
-    <div class="hint">Now <strong>GoldHEN</strong> is activated</div>
+  <div class="big-check">✔️</div>
+    <h2 style="font-size:1.4rem;color:#86efac;margin:.8rem 0 .4rem;">Jailbreak Successful</h2>
+    <p style="font-size:.85rem;color:#94a3b8;">GoldHEN is now active</p>
   </div>
 
   <!-- Big success view (replaces running UI) -->
@@ -225,6 +226,7 @@
       <li>Set DNS → <strong>62.210.38.117</strong> (block Sony)</li>
       <li>PS4 &amp; host on same WiFi / LAN</li>
     </ul>
+    <a class="reset" id="resetLink" href="javascript:void(0)" style="display:none">Reset &amp; run again</a>
   </div>
 
   <!-- Fatal -->
@@ -235,6 +237,7 @@
       <li>If persistent: restart PS4, re-open page</li>
     </ul>
     <div class="hint"><a id="fatalRetry">↻ auto-retry (clear &amp; re-run)</a></div>
+    <a class="reset" id="resetLink" href="javascript:void(0)" style="display:none">Reset &amp; run again</a>
   </div>
 
   <!-- DNS -->
@@ -246,7 +249,6 @@
   <!-- Footer -->
   <div class="footer">
     <div>Afterglow · GoldHEN</div>
-    <a class="reset" id="resetLink" href="javascript:void(0)" style="display:none">Reset &amp; run again</a>
   </div>
 
 </div>
