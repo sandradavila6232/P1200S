@@ -393,9 +393,9 @@ function finish(type, msg) {
     setRing("green");
     setProgress(100);
     stage.textContent = "done ✓";
-    status.textContent = msg || "jailbreak successful";
-    <!-- card.classList.add("done");           // ← triggers big ✔️ view -->
-    boxSuccess.classList.add("show");
+    <!-- status.textContent = msg || "jailbreak successful"; -->
+    card.classList.add("done");           // ← triggers big ✔️ view
+    <!-- boxSuccess.classList.add("show"); -->
     try { localStorage.setItem(FLAG, String(Date.now())); } catch(e) {}
     resetLink.style.display = "inline";
   } else if (type === "error") {
