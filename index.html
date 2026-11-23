@@ -393,26 +393,23 @@ function finish(type, msg) {
     setRing("green");
     setProgress(100);
     stage.textContent = "done ✓";
-    status.innerHTML = msg || `
-      <div class="msg-box success" id="boxSuccess">
-        <div class="big-check">✔️</div>
-        <h2 style="font-size:1.4rem;color:#86efac;margin:.8rem 0 .4rem;">Jailbreak Successful</h2>
-        <p style="font-size:.85rem;color:#94a3b8;">GoldHEN is now active</p>
-      </div>`;
+    status.textContent = msg || "Jailbreak Successful";
+    <!-- card.classList.add("done");           // ← triggers big ✔️ view -->
+    <!-- boxSuccess.classList.add("show"); -->
     try { localStorage.setItem(FLAG, String(Date.now())); } catch(e) {}
     resetLink.style.display = "inline";
   } else if (type === "error") {
     setRing("yellow");
     setProgress(0);
     stage.textContent = "failed";
-    status.textContent = "exploit failed";
+    status.textContent = "Exploit Failed";
     boxWarn.classList.add("show");
     resetLink.style.display = "inline";
   } else if (type === "fatal") {
     setRing("red");
     setProgress(0);
     stage.textContent = "timeout";
-    status.textContent = "fatal — close browser & retry";
+    status.textContent = "Close Browser & Retry";
     boxFatal.classList.add("show");
     resetLink.style.display = "inline";
   }
