@@ -393,9 +393,12 @@ function finish(type, msg) {
     setRing("green");
     setProgress(100);
     stage.textContent = "done ✓";
-    <!-- status.textContent = msg || "jailbreak successful"; -->
-    card.classList.add("done");           // ← triggers big ✔️ view
-    <!-- boxSuccess.classList.add("show"); -->
+    status.innerHTML = msg || `
+      <div class="msg-box success" id="boxSuccess">
+        <div class="big-check">✔️</div>
+        <h2 style="font-size:1.4rem;color:#86efac;margin:.8rem 0 .4rem;">Jailbreak Successful</h2>
+        <p style="font-size:.85rem;color:#94a3b8;">GoldHEN is now active</p>
+      </div>`;
     try { localStorage.setItem(FLAG, String(Date.now())); } catch(e) {}
     resetLink.style.display = "inline";
   } else if (type === "error") {
