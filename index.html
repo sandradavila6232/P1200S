@@ -394,7 +394,8 @@ function finish(type, msg) {
     setProgress(100);
     stage.textContent = "done ✓";
     status.textContent = msg || "jailbreak successful";
-    card.classList.add("done");           // ← triggers big ✔️ view
+    <!-- card.classList.add("done");           // ← triggers big ✔️ view -->
+    boxSuccess.classList.add("show");
     try { localStorage.setItem(FLAG, String(Date.now())); } catch(e) {}
     resetLink.style.display = "inline";
   } else if (type === "error") {
@@ -410,6 +411,7 @@ function finish(type, msg) {
     stage.textContent = "timeout";
     status.textContent = "fatal — close browser & retry";
     boxFatal.classList.add("show");
+    resetLink.style.display = "inline";
   }
 }
 
