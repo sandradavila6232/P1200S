@@ -16,7 +16,11 @@
 set -e
 cd "$(dirname "$0")"
 OUT=cache.appcache
-FILES="index.html jb.html style.css launch.js jb.js core.js mem.js int64.js ps4_offsets.js afterglow.js patchset-1200.bin goldhen.bin"
+FILES="index.html jb.html style.css launch.js goldhen.bin
+       jb.js core.js mem.js int64.js ps4_offsets.js afterglow.js
+       patchset-1200.bin patchset-1202.bin patchset-1250.bin patchset-1252.bin
+       patchset-1300.bin patchset-1302.bin patchset-1304.bin patchset-1350.bin
+       patchset-1352.bin patchset-1400.bin patchset-1402.bin"
 
 {
   echo "CACHE MANIFEST"
